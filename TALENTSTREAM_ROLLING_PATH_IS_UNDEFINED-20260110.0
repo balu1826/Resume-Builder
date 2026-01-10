@@ -1,0 +1,63 @@
+10-01-2026_11:00:32.371{UTC}|report-tool|INFO ||o.h.v.i.u.Version|HV000001: Hibernate Validator 6.2.5.Final
+10-01-2026_11:00:32.436{UTC}|report-tool|INFO ||c.t.TalentStreamApplication|Starting TalentStreamApplication using Java 17.0.15 on SYMP-LT1011 with PID 9004 (C:\resume and heatMapping\TalentStreamBE-staging\target\classes started by Balu in C:\resume and heatMapping\TalentStreamBE-staging)
+10-01-2026_11:00:32.437{UTC}|report-tool|DEBUG||c.t.TalentStreamApplication|Running with Spring Boot v2.7.9, Spring v5.3.25
+10-01-2026_11:00:32.439{UTC}|report-tool|INFO ||c.t.TalentStreamApplication|The following 1 profile is active: "${SPRING_PROFILES_ACTIVE}"
+10-01-2026_11:00:32.586{UTC}|report-tool|INFO ||o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor|Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+10-01-2026_11:00:32.602{UTC}|report-tool|INFO ||o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor|For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+10-01-2026_11:00:35.411{UTC}|report-tool|INFO ||o.s.d.r.c.RepositoryConfigurationDelegate|Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+10-01-2026_11:00:35.850{UTC}|report-tool|INFO ||o.s.d.r.c.RepositoryConfigurationDelegate|Finished Spring Data repository scanning in 417 ms. Found 49 JPA repository interfaces.
+10-01-2026_11:00:38.285{UTC}|report-tool|INFO ||o.s.b.w.e.t.TomcatWebServer|Tomcat initialized with port(s): 8081 (http)
+10-01-2026_11:00:38.311{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Initializing ProtocolHandler ["http-nio-8081"]
+10-01-2026_11:00:38.315{UTC}|report-tool|INFO ||o.a.c.c.StandardService|Starting service [Tomcat]
+10-01-2026_11:00:38.316{UTC}|report-tool|INFO ||o.a.c.c.StandardEngine|Starting Servlet engine: [Apache Tomcat/9.0.71]
+10-01-2026_11:00:38.650{UTC}|report-tool|INFO ||o.a.c.c.C.[.[.[/]|Initializing Spring embedded WebApplicationContext
+10-01-2026_11:00:38.651{UTC}|report-tool|INFO ||o.s.b.w.s.c.ServletWebServerApplicationContext|Root WebApplicationContext: initialization completed in 6030 ms
+10-01-2026_11:00:39.607{UTC}|report-tool|INFO ||o.h.j.i.u.LogHelper|HHH000204: Processing PersistenceUnitInfo [name: default]
+10-01-2026_11:00:39.802{UTC}|report-tool|INFO ||o.h.Version|HHH000412: Hibernate ORM core version 5.6.15.Final
+10-01-2026_11:00:40.735{UTC}|report-tool|INFO ||o.h.a.c.Version|HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+10-01-2026_11:00:41.204{UTC}|report-tool|INFO ||c.z.h.HikariDataSource|HikariCP - Starting...
+10-01-2026_11:00:42.480{UTC}|report-tool|INFO ||c.z.h.HikariDataSource|HikariCP - Start completed.
+10-01-2026_11:00:42.517{UTC}|report-tool|INFO ||o.h.d.Dialect|HHH000400: Using dialect: org.hibernate.dialect.PostgreSQLDialect
+10-01-2026_11:00:56.434{UTC}|report-tool|INFO ||o.h.e.t.j.p.i.JtaPlatformInitiator|HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+10-01-2026_11:00:56.486{UTC}|report-tool|INFO ||o.s.o.j.LocalContainerEntityManagerFactoryBean|Initialized JPA EntityManagerFactory for persistence unit 'default'
+10-01-2026_11:00:57.319{UTC}|report-tool|DEBUG||c.t.f.JwtRequestFilter|Filter 'jwtRequestFilter' configured for use
+10-01-2026_11:00:58.295{UTC}|report-tool|WARN ||o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration|spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+10-01-2026_11:00:59.208{UTC}|report-tool|DEBUG||c.t.c.ApplicantProfileController|ApplicantProfileController initialized
+10-01-2026_11:01:00.051{UTC}|report-tool|INFO ||c.t.c.GeminiController|GeminiController initialized successfully
+10-01-2026_11:01:00.510{UTC}|report-tool|INFO ||c.t.c.SecretConfig|No aws.secrets.name provided in properties and AWS_SECRETS_NAME not set. Attempting to load secrets via legacy env util (if present).
+10-01-2026_11:01:00.521{UTC}|report-tool|WARN ||c.t.AwsSecretProvider|No secret name provided and legacy AwsSecretsManagerUtil didn't return usable JSON. Secrets will not be loaded from AWS Secrets Manager in this runtime.
+10-01-2026_11:01:00.522{UTC}|report-tool|WARN ||c.t.c.SecretConfig|Secret JSON not available. Returning empty SecretProperties. In production, set AWS_SECRETS_NAME or aws.secrets.name and ensure IAM permissions.
+10-01-2026_11:01:01.223{UTC}|report-tool|INFO ||o.s.s.w.DefaultSecurityFilterChain|Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@214de8a7, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@74964b34, org.springframework.security.web.context.SecurityContextPersistenceFilter@1cbcf05e, org.springframework.security.web.header.HeaderWriterFilter@7a231786, org.springframework.web.filter.CorsFilter@1f4328ea, org.springframework.security.web.authentication.logout.LogoutFilter@3cda75db, com.talentstream.filter.JwtRequestFilter@23b85a4b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@474ca518, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@423f3a4b, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@469e93c2, org.springframework.security.web.session.SessionManagementFilter@6b8c7fc1, org.springframework.security.web.access.ExceptionTranslationFilter@63494c27, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@677bf09c]
+10-01-2026_11:01:01.906{UTC}|report-tool|INFO ||o.s.b.d.a.OptionalLiveReloadServer|LiveReload server is running on port 35729
+10-01-2026_11:01:01.919{UTC}|report-tool|INFO ||o.s.b.a.e.w.EndpointLinksResolver|Exposing 2 endpoint(s) beneath base path '/actuator'
+10-01-2026_11:01:01.968{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Starting ProtocolHandler ["http-nio-8081"]
+10-01-2026_11:01:02.015{UTC}|report-tool|INFO ||o.s.b.w.e.t.TomcatWebServer|Tomcat started on port(s): 8081 (http) with context path ''
+10-01-2026_11:01:02.058{UTC}|report-tool|INFO ||c.t.TalentStreamApplication|Started TalentStreamApplication in 30.588 seconds (JVM running for 32.683)
+10-01-2026_11:01:02.231{UTC}|report-tool|INFO ||o.a.c.c.C.[.[.[/]|Initializing Spring DispatcherServlet 'dispatcherServlet'
+10-01-2026_11:01:02.232{UTC}|report-tool|INFO ||o.s.w.s.DispatcherServlet|Initializing Servlet 'dispatcherServlet'
+10-01-2026_11:01:02.236{UTC}|report-tool|INFO ||o.s.w.s.DispatcherServlet|Completed initialization in 4 ms
+10-01-2026_11:01:54.957{UTC}|report-tool|INFO ||c.t.c.ApplicantProfileController|Attempting to login with email: balubattula1826@gmail.com
+10-01-2026_11:01:54.960{UTC}|report-tool|DEBUG||c.t.c.ApplicantProfileController|Handling Google Sign-In for email: balubattula1826@gmail.com
+10-01-2026_11:01:55.206{UTC}|report-tool|DEBUG||c.t.c.ApplicantProfileController|Google Sign-In successful for: balubattula1826@gmail.com
+10-01-2026_13:29:55.785{UTC}|report-tool|WARN ||c.z.h.p.HikariPool|HikariCP - Thread starvation or clock leap detected (housekeeper delta=2m40s845ms276µs100ns).
+10-01-2026_13:59:59.902{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - starting news fetch
+10-01-2026_13:59:59.909{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - news api url built
+10-01-2026_14:00:00.697{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - articles node retrieved, size approx: 18
+10-01-2026_14:00:00.955{UTC}|report-tool|DEBUG||c.t.s.BlogService|callGeminiForElaboration - calling Gemini for title=Why Are Grok and X Still Available in App Stores?
+10-01-2026_14:00:04.387{UTC}|report-tool|DEBUG||c.t.s.BlogService|callGeminiForElaboration - received elaboration for title=Why Are Grok and X Still Available in App Stores?
+10-01-2026_14:00:04.729{UTC}|report-tool|INFO ||c.t.s.BlogService|fetchAndSaveTechNews - saved blog: Why Are Grok and X Still Available in App Stores?
+10-01-2026_14:00:04.795{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Most dubious uses of AI at CES 2026
+10-01-2026_14:00:04.846{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: People Are Using AI to Falsely Identify the Federal Agent Who Shot Renee Good
+10-01-2026_14:00:04.898{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: AI Models Are Starting to Learn by Asking Themselves Questions
+10-01-2026_14:00:04.951{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Jake Sullivan is furious that Trump destroyed his AI foreign policy
+10-01-2026_14:00:05.003{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Grok Is Pushing AI ‘Undressing’ Mainstream
+10-01-2026_14:00:05.054{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Mobileye acquires humanoid robot startup Mentee Robotics for $900M | TechCrunch
+10-01-2026_14:00:05.104{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Grok is undressing children — can the law stop it?
+10-01-2026_14:00:05.156{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: AI moves into the real world as companion robots and pets
+10-01-2026_14:00:05.217{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Google Gemini Is Taking Control of Humanoid Robots on Auto Factory Floors
+10-01-2026_14:00:05.268{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: At CES 2026, Everything Is AI. What Matters Is How You Use It
+10-01-2026_14:00:05.318{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Bosch’s fancy coffee machine is getting Alexa Plus
+10-01-2026_14:00:05.370{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: French and Malaysian authorities are investigating Grok for generating sexualized deepfakes | TechCrunch
+10-01-2026_14:00:05.425{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: Protein Bars: Gluten-Free, Whole Foods, Fiber (2026)
+10-01-2026_14:00:05.480{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: The dumbest things that happened in tech this year | TechCrunch
+10-01-2026_14:00:05.535{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - skipping duplicate article: The Canon EOS R6 Mark III is great, but this lens is amazing
