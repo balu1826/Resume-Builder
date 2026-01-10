@@ -21,13 +21,28 @@ public class ResumeAIEnhancerService {
     /**
      * Enhances resume summary into 3–4 line ATS-friendly professional format.
      */
-    public String enhanceSummary(String summary) {
-        String prompt =
-            "Enhance the following resume summary into a professional, ATS-friendly, concise 3–4 line format.\n" +
-            "Improve grammar, make wording stronger, remove weak phrases, and maintain correctness.\n" +
-            "Do NOT add markdown, bullets, JSON, or headings. Just return the enhanced summary text.\n\n" +
-            "SUMMARY:\n" + summary;
-
+    public String enhanceSummary(String summary,String role,String jd) {
+        String prompt ;
+        if(jd.trim().length()>1) {
+        	  prompt =
+        	            "Enhance the following resume summary to align with the provided Job Description.\n" +
+        	            "Use relevant skills, keywords, and responsibilities from the JD to make it ATS-friendly and professional.\n" +
+        	            "Output must be 3-4 lines, concise, and factual.\n" +
+        	            "Do NOT add markdown, bullets, JSON, or headings.\n\n" +
+        	            "SUMMARY:\n" + summary + "\n\n" +
+        	            "JOB DESCRIPTION:\n" + jd + "\n\n" +
+        	            "Return only the enhanced summary text.";
+        }
+        else {
+        	prompt =
+                    "Enhance the following resume summary to suit the role of '" + role + "'.\n" +
+                            "Use relevant role keywords to improve ATS score.\n" +
+                            "Output must be 3-4 lines, concise, professional, and factual.\n" +
+                            "Do NOT add markdown, bullets, JSON, or headings.\n\n" +
+                            "SUMMARY:\n" + summary + "\n\n" +
+                            "Return only the enhanced summary text.";
+        }
+           
         return callGroq(prompt);
     }
 

@@ -14,12 +14,11 @@ public class HtmlResumeRenderer {
 		this.resumeAIEnhancerService = resumeAIEnhancerService;
 	}
 
-	public String render(ResumeSchemaDTO resume) {
-		 String rawSummary = extractSummary(resume);
-		// Call AI (if summary exists)
-		    String enhancedSummary = rawSummary != null
-		            ? resumeAIEnhancerService.enhanceSummary(rawSummary)
-		            : null;
+	public String render(ResumeSchemaDTO resume,String summary,String role,String jd) {
+		
+	
+		    String enhancedSummary = resumeAIEnhancerService.enhanceSummary(summary,role,jd);
+		            
 	
         StringBuilder html = new StringBuilder();
 
@@ -61,14 +60,6 @@ public class HtmlResumeRenderer {
         html.append("</body></html>");
         return html.toString();
     }
-	private String extractSummary(ResumeSchemaDTO resume) {
-	    if (resume.getSections() == null) return null;
-
-	    return resume.getSections().stream()
-	            .filter(s -> "SUMMARY".equalsIgnoreCase(s.getTitle()))
-	            .findFirst()
-	            .flatMap(s -> s.getLines().stream().findFirst())
-	            .orElse(null);
-	}
+	
 
 }
