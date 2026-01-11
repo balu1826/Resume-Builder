@@ -37,6 +37,11 @@ import javax.persistence.*;
 	        " ae.xii_board AS xiiBoard, " +
 	        " ae.xii_marks_percent AS xiiMarksPercent, " +
 	        " ae.xii_passing_year AS xiiPassingYear, " +
+	        // Skills JSON
+	        " COALESCE((SELECT jsonb_agg(to_jsonb(s.skill_name)) " +
+	        "           FROM applicant_profile_skills_required apsr " +
+	        "           JOIN applicant_skills s ON s.id = apsr.applicantskill_id " +
+	        "           WHERE apsr.profileid = ap.profileid), CAST('[]' AS jsonb)) AS skillsJson ," +
 
 	        " COALESCE(jsonb_agg(jsonb_build_object( " +
 	        "     'project_id', pr.id, " +
@@ -54,6 +59,7 @@ import javax.persistence.*;
 	        "LEFT JOIN applicant_profile ap ON ap.applicantid = a.id " +
 	        "LEFT JOIN applicant_education ae ON ae.applicant_id = a.id " +
 	        "LEFT JOIN applicant_projects pr ON pr.applicant_id = a.id " +
+	       
 	        "WHERE a.id = ?1 " +
 	        "GROUP BY a.id, ap.profileid, ae.id",
 	    resultSetMapping = "ApplicantFullDataMapping"
@@ -95,8 +101,11 @@ import javax.persistence.*;
 	            @ColumnResult(name = "xiiBoard", type = String.class),
 	            @ColumnResult(name = "xiiMarksPercent", type = Double.class),
 	            @ColumnResult(name = "xiiPassingYear", type = Integer.class),
-
+	            
+	            @ColumnResult(name = "skillsJson", type = String.class),
 	            @ColumnResult(name = "projectsJson", type = String.class)
+	          
+
 	        }
 	    )
 	)

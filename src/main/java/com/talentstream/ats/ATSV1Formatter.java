@@ -110,6 +110,11 @@ public class ATSV1Formatter implements ATSFormatter {
         if (dto.getSummary() != null && !dto.getSummary().isBlank()) {
             sections.add(section("SUMMARY", List.of(esc(dto.getSummary()))));
         }
+        // ===== SKILLS =====
+        if (dto.getSkillsJson() != null && !dto.getSkillsJson().isBlank()) {
+        	sections.add(section("SKILLS", extractSkills(dto.getSkillsJson())));
+
+        }
 
         // ===== SKILLS FROM PROJECT JSON =====
         List<String> skills = extractSkillsFromProjects(esc(dto.getProjectsJson()));
@@ -200,4 +205,13 @@ public class ATSV1Formatter implements ATSFormatter {
                 .replace("\"", "&quot;")
                 .replace("'", "&#39;");
     }
+    private List<String> extractSkills(String skillsJson) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(skillsJson, new TypeReference<List<String>>() {});
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
 }

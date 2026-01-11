@@ -32,6 +32,8 @@ public class ApplicantFullDataDTO {
     private String xiiBoard;
     private Double xiiMarksPercent;
     private Integer xiiPassingYear;
+    
+    private String skillsJson;
 
     private String projectsJson;
 
@@ -43,6 +45,7 @@ public class ApplicantFullDataDTO {
         Integer gradStartYear, Integer gradEndYear, Double gradMarksPercent, String gradGradingSystem,
         String xBoard, Double xMarksPercent, Integer xPassingYear,
         String xiiBoard, Double xiiMarksPercent, Integer xiiPassingYear,
+        String skillsJson,
         String projectsJson
     ) {
         this.applicantId = applicantId;
@@ -76,6 +79,8 @@ public class ApplicantFullDataDTO {
         this.xiiBoard = xiiBoard;
         this.xiiMarksPercent = xiiMarksPercent;
         this.xiiPassingYear = xiiPassingYear;
+        
+        this.skillsJson=skillsJson;
 
         this.projectsJson = projectsJson;
     }
@@ -294,6 +299,15 @@ public class ApplicantFullDataDTO {
 
 	public void setXiiPassingYear(Integer xiiPassingYear) {
 		this.xiiPassingYear = xiiPassingYear;
+	}
+	
+
+	public String getSkillsJson() {
+		return skillsJson;
+	}
+
+	public void setSkillsJson(String skillsJson) {
+		this.skillsJson = skillsJson;
 	}
 
 	public String getProjectsJson() {
