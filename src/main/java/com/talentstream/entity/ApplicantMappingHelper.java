@@ -53,7 +53,14 @@ import javax.persistence.*;
 	        "     'skills', pr.skills_used, " +
 	        "     'team_size', pr.team_size " +
 	        " )) FILTER (WHERE pr.id IS NOT NULL), CAST('[]' AS jsonb)) AS projectsJson\r\n"
-	        + " " +
+	        + " ," +
+	       "     COALESCE(\r\n"
+	       + "        (SELECT jsonb_agg(l.known_languages)\r\n"
+	       + "         FROM applicant_profile_known_languages l\r\n"
+	       + "         WHERE l.applicant_profile_profileid = ap.profileid\r\n"
+	       + "        ), CAST('[]' AS jsonb)\r\n"
+	       + "    ) AS knownLanguagesJson\r\n"
+	       + ""+
 
 	        "FROM applicant a " +
 	        "LEFT JOIN applicant_profile ap ON ap.applicantid = a.id " +
@@ -103,7 +110,9 @@ import javax.persistence.*;
 	            @ColumnResult(name = "xiiPassingYear", type = Integer.class),
 	            
 	            @ColumnResult(name = "skillsJson", type = String.class),
-	            @ColumnResult(name = "projectsJson", type = String.class)
+	            @ColumnResult(name = "projectsJson", type = String.class),
+	            @ColumnResult(name = "knownLanguagesJson", type = String.class)
+
 	          
 
 	        }

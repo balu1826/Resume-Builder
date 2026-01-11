@@ -36,6 +36,9 @@ public class ApplicantFullDataDTO {
     private String skillsJson;
 
     private String projectsJson;
+    
+    private String knownLanguagesJson;
+
 
     public ApplicantFullDataDTO(
         Long applicantId, String email, String title, String summary,
@@ -46,7 +49,8 @@ public class ApplicantFullDataDTO {
         String xBoard, Double xMarksPercent, Integer xPassingYear,
         String xiiBoard, Double xiiMarksPercent, Integer xiiPassingYear,
         String skillsJson,
-        String projectsJson
+        String projectsJson,
+        String  knownLanguagesJson
     ) {
         this.applicantId = applicantId;
         this.email = email;
@@ -83,6 +87,7 @@ public class ApplicantFullDataDTO {
         this.skillsJson=skillsJson;
 
         this.projectsJson = projectsJson;
+        this. knownLanguagesJson= knownLanguagesJson;
     }
 
 	public Long getApplicantId() {
@@ -317,6 +322,15 @@ public class ApplicantFullDataDTO {
 	public void setProjectsJson(String projectsJson) {
 		this.projectsJson = projectsJson;
 	}
+
+	public String getKnownLanguagesJson() {
+		return knownLanguagesJson;
+	}
+
+	public void setKnownLanguagesJson(String knownLanguagesJson) {
+		this.knownLanguagesJson = knownLanguagesJson;
+	}
+	
 
     
 }

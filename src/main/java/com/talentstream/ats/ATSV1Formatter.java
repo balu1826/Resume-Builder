@@ -112,7 +112,7 @@ public class ATSV1Formatter implements ATSFormatter {
         }
         // ===== SKILLS =====
         if (dto.getSkillsJson() != null && !dto.getSkillsJson().isBlank()) {
-        	sections.add(section("SKILLS", extractSkills(dto.getSkillsJson())));
+        	sections.add(section("SKILLS", extractKeyWords(dto.getSkillsJson())));
 
         }
 
@@ -152,6 +152,14 @@ public class ATSV1Formatter implements ATSFormatter {
         if (!projectLines.isEmpty()) {
             sections.add(section("PROJECTS", projectLines));
         }
+        // ===== PROJECTS =====
+        if (dto.getKnownLanguagesJson() != null && !dto.getKnownLanguagesJson().isEmpty()) {
+         sections.add(section(
+              "KNOWN LANGUAGES",
+            extractKeyWords( dto.getKnownLanguagesJson())
+          ));
+        }
+
 
         resume.setSections(sections);
        
@@ -205,7 +213,7 @@ public class ATSV1Formatter implements ATSFormatter {
                 .replace("\"", "&quot;")
                 .replace("'", "&#39;");
     }
-    private List<String> extractSkills(String skillsJson) {
+    private List<String> extractKeyWords(String skillsJson) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(skillsJson, new TypeReference<List<String>>() {});
