@@ -52,7 +52,7 @@ public class ATSResumeController {
     	
     
     		
-    		@GetMapping(
+    		@PostMapping(
         		    value = "/download/resume",
         		    produces = MediaType.APPLICATION_PDF_VALUE
         		)

@@ -1166,3 +1166,128 @@ Caused by: java.net.SocketException: Connection reset
 23-01-2026_13:42:53.902{UTC}|report-tool|INFO ||o.s.w.s.DispatcherServlet|Initializing Servlet 'dispatcherServlet'
 23-01-2026_13:42:53.905{UTC}|report-tool|INFO ||o.s.w.s.DispatcherServlet|Completed initialization in 3 ms
 23-01-2026_13:49:17.403{UTC}|report-tool|WARN ||c.z.h.p.PoolBase|HikariCP - Failed to validate connection org.postgresql.jdbc.PgConnection@10780ff5 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+23-01-2026_13:49:17.407{UTC}|report-tool|WARN ||c.z.h.p.PoolBase|HikariCP - Failed to validate connection org.postgresql.jdbc.PgConnection@ac98b4c (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+23-01-2026_14:00:00.002{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - starting news fetch
+23-01-2026_14:00:00.004{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - news api url built
+23-01-2026_14:00:01.076{UTC}|report-tool|DEBUG||c.t.s.BlogService|fetchAndSaveTechNews - articles node retrieved, size approx: 22
+23-01-2026_14:00:01.085{UTC}|report-tool|WARN ||c.z.h.p.PoolBase|HikariCP - Failed to validate connection org.postgresql.jdbc.PgConnection@ef61ecd (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+23-01-2026_14:00:01.089{UTC}|report-tool|WARN ||c.z.h.p.PoolBase|HikariCP - Failed to validate connection org.postgresql.jdbc.PgConnection@26fe5a3a (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+23-01-2026_14:00:01.488{UTC}|report-tool|DEBUG||c.t.s.BlogService|callGeminiForElaboration - calling Gemini for title=A timeline of the US semiconductor market in 2025 | TechCrunch
+23-01-2026_14:00:01.884{UTC}|report-tool|ERROR||c.t.s.BlogService|callGeminiForElaboration - error calling Gemini: 403 Forbidden: "{<EOL>  "error": {<EOL>    "code": 403,<EOL>    "message": "Your API key was reported as leaked. Please use another API key.",<EOL>    "status": "PERMISSION_DENIED"<EOL>  }<EOL>}<EOL>"
+org.springframework.web.client.HttpClientErrorException$Forbidden: 403 Forbidden: "{<EOL>  "error": {<EOL>    "code": 403,<EOL>    "message": "Your API key was reported as leaked. Please use another API key.",<EOL>    "status": "PERMISSION_DENIED"<EOL>  }<EOL>}<EOL>"
+	at org.springframework.web.client.HttpClientErrorException.create(HttpClientErrorException.java:109)
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:168)
+	at org.springframework.web.client.DefaultResponseErrorHandler.handleError(DefaultResponseErrorHandler.java:122)
+	at org.springframework.web.client.ResponseErrorHandler.handleError(ResponseErrorHandler.java:63)
+	at org.springframework.web.client.RestTemplate.handleResponse(RestTemplate.java:825)
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:783)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:717)
+	at org.springframework.web.client.RestTemplate.exchange(RestTemplate.java:608)
+	at com.talentstream.service.BlogService.callGeminiForElaboration(BlogService.java:163)
+	at com.talentstream.service.BlogService.mapArticleToBlog(BlogService.java:126)
+	at com.talentstream.service.BlogService.fetchAndSaveTechNews(BlogService.java:96)
+	at com.talentstream.Schedular.BlogScheduler.fetchTechNewsThreeTimesDaily(BlogScheduler.java:22)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:84)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:95)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+23-01-2026_14:00:01.885{UTC}|report-tool|ERROR||c.t.s.BlogService|fetchAndSaveTechNews - unexpected error: Error calling Gemini API: 403 Forbidden: "{<EOL>  "error": {<EOL>    "code": 403,<EOL>    "message": "Your API key was reported as leaked. Please use another API key.",<EOL>    "status": "PERMISSION_DENIED"<EOL>  }<EOL>}<EOL>"
+com.talentstream.exception.CustomException: Error calling Gemini API: 403 Forbidden: "{<EOL>  "error": {<EOL>    "code": 403,<EOL>    "message": "Your API key was reported as leaked. Please use another API key.",<EOL>    "status": "PERMISSION_DENIED"<EOL>  }<EOL>}<EOL>"
+	at com.talentstream.service.BlogService.callGeminiForElaboration(BlogService.java:177)
+	at com.talentstream.service.BlogService.mapArticleToBlog(BlogService.java:126)
+	at com.talentstream.service.BlogService.fetchAndSaveTechNews(BlogService.java:96)
+	at com.talentstream.Schedular.BlogScheduler.fetchTechNewsThreeTimesDaily(BlogScheduler.java:22)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:84)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:95)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+23-01-2026_14:00:01.886{UTC}|report-tool|ERROR||o.s.s.s.TaskUtils$LoggingErrorHandler|Unexpected error occurred in scheduled task
+com.talentstream.exception.CustomException: Error fetching or saving tech news: Error calling Gemini API: 403 Forbidden: "{<EOL>  "error": {<EOL>    "code": 403,<EOL>    "message": "Your API key was reported as leaked. Please use another API key.",<EOL>    "status": "PERMISSION_DENIED"<EOL>  }<EOL>}<EOL>"
+	at com.talentstream.service.BlogService.fetchAndSaveTechNews(BlogService.java:103)
+	at com.talentstream.Schedular.BlogScheduler.fetchTechNewsThreeTimesDaily(BlogScheduler.java:22)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:84)
+	at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+	at org.springframework.scheduling.concurrent.ReschedulingRunnable.run(ReschedulingRunnable.java:95)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+23-01-2026_14:39:30.334{UTC}|report-tool|WARN ||c.z.h.p.HikariPool|HikariCP - Thread starvation or clock leap detected (housekeeper delta=7m48s716ms592µs800ns).
+23-01-2026_17:46:01.662{UTC}|report-tool|WARN ||c.z.h.p.HikariPool|HikariCP - Thread starvation or clock leap detected (housekeeper delta=1h3m29s393ms796µs900ns).
+23-01-2026_18:09:31.408{UTC}|report-tool|WARN ||o.s.w.s.m.s.DefaultHandlerExceptionResolver|Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
+23-01-2026_18:09:39.476{UTC}|report-tool|WARN ||o.s.w.s.m.s.DefaultHandlerExceptionResolver|Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
+23-01-2026_18:10:50.636{UTC}|report-tool|WARN ||o.s.w.s.m.s.DefaultHandlerExceptionResolver|Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
+23-01-2026_18:14:38.523{UTC}|report-tool|INFO ||o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener|Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+23-01-2026_18:14:38.650{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Pausing ProtocolHandler ["http-nio-8081"]
+23-01-2026_18:14:38.653{UTC}|report-tool|INFO ||o.a.c.c.StandardService|Stopping service [Tomcat]
+23-01-2026_18:14:38.659{UTC}|report-tool|INFO ||o.a.c.c.C.[.[.[/]|Destroying Spring FrameworkServlet 'dispatcherServlet'
+23-01-2026_18:14:38.730{UTC}|report-tool|WARN ||o.a.c.l.WebappClassLoaderBase|The web application [ROOT] appears to have started a thread named [HikariCP housekeeper] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thread:
+ java.base@17.0.15/jdk.internal.misc.Unsafe.park(Native Method)
+ java.base@17.0.15/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+ java.base@17.0.15/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:1679)
+ java.base@17.0.15/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1182)
+ java.base@17.0.15/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:899)
+ java.base@17.0.15/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1062)
+ java.base@17.0.15/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+ java.base@17.0.15/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+ java.base@17.0.15/java.lang.Thread.run(Thread.java:840)
+23-01-2026_18:14:38.737{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Stopping ProtocolHandler ["http-nio-8081"]
+23-01-2026_18:14:38.752{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Destroying ProtocolHandler ["http-nio-8081"]
+23-01-2026_18:14:38.857{UTC}|report-tool|INFO ||o.s.o.j.LocalContainerEntityManagerFactoryBean|Closing JPA EntityManagerFactory for persistence unit 'default'
+23-01-2026_18:14:38.881{UTC}|report-tool|INFO ||c.z.h.HikariDataSource|HikariCP - Shutdown initiated...
+23-01-2026_18:14:38.917{UTC}|report-tool|INFO ||c.z.h.HikariDataSource|HikariCP - Shutdown completed.
+23-01-2026_18:14:40.614{UTC}|report-tool|INFO ||c.t.TalentStreamApplication|Starting TalentStreamApplication using Java 17.0.15 on SYMP-LT1011 with PID 17628 (C:\Latest-Resume builder\Resume-Builder\target\classes started by Balu in C:\Latest-Resume builder\Resume-Builder)
+23-01-2026_18:14:40.614{UTC}|report-tool|DEBUG||c.t.TalentStreamApplication|Running with Spring Boot v2.7.9, Spring v5.3.25
+23-01-2026_18:14:40.614{UTC}|report-tool|INFO ||c.t.TalentStreamApplication|The following 1 profile is active: "${SPRING_PROFILES_ACTIVE}"
+23-01-2026_18:14:43.724{UTC}|report-tool|INFO ||o.s.d.r.c.RepositoryConfigurationDelegate|Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+23-01-2026_18:14:44.339{UTC}|report-tool|INFO ||o.s.d.r.c.RepositoryConfigurationDelegate|Finished Spring Data repository scanning in 610 ms. Found 49 JPA repository interfaces.
+23-01-2026_18:14:44.934{UTC}|report-tool|INFO ||o.s.b.w.e.t.TomcatWebServer|Tomcat initialized with port(s): 8081 (http)
+23-01-2026_18:14:44.935{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Initializing ProtocolHandler ["http-nio-8081"]
+23-01-2026_18:14:44.936{UTC}|report-tool|INFO ||o.a.c.c.StandardService|Starting service [Tomcat]
+23-01-2026_18:14:44.938{UTC}|report-tool|INFO ||o.a.c.c.StandardEngine|Starting Servlet engine: [Apache Tomcat/9.0.71]
+23-01-2026_18:14:45.216{UTC}|report-tool|INFO ||o.a.c.c.C.[.[.[/]|Initializing Spring embedded WebApplicationContext
+23-01-2026_18:14:45.217{UTC}|report-tool|INFO ||o.s.b.w.s.c.ServletWebServerApplicationContext|Root WebApplicationContext: initialization completed in 4595 ms
+23-01-2026_18:14:45.454{UTC}|report-tool|INFO ||o.h.j.i.u.LogHelper|HHH000204: Processing PersistenceUnitInfo [name: default]
+23-01-2026_18:14:45.504{UTC}|report-tool|INFO ||c.z.h.HikariDataSource|HikariCP - Starting...
+23-01-2026_18:14:45.925{UTC}|report-tool|INFO ||c.z.h.HikariDataSource|HikariCP - Start completed.
+23-01-2026_18:14:45.927{UTC}|report-tool|INFO ||o.h.d.Dialect|HHH000400: Using dialect: org.hibernate.dialect.PostgreSQLDialect
+23-01-2026_18:14:54.550{UTC}|report-tool|INFO ||o.h.e.t.j.p.i.JtaPlatformInitiator|HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+23-01-2026_18:14:54.564{UTC}|report-tool|INFO ||o.s.o.j.LocalContainerEntityManagerFactoryBean|Initialized JPA EntityManagerFactory for persistence unit 'default'
+23-01-2026_18:14:54.803{UTC}|report-tool|DEBUG||c.t.f.JwtRequestFilter|Filter 'jwtRequestFilter' configured for use
+23-01-2026_18:14:55.036{UTC}|report-tool|WARN ||o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration|spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+23-01-2026_18:14:55.601{UTC}|report-tool|DEBUG||c.t.c.ApplicantProfileController|ApplicantProfileController initialized
+23-01-2026_18:14:56.278{UTC}|report-tool|INFO ||c.t.c.GeminiController|GeminiController initialized successfully
+23-01-2026_18:14:56.785{UTC}|report-tool|INFO ||c.t.c.SecretConfig|No aws.secrets.name provided in properties and AWS_SECRETS_NAME not set. Attempting to load secrets via legacy env util (if present).
+23-01-2026_18:14:56.803{UTC}|report-tool|WARN ||c.t.AwsSecretProvider|No secret name provided and legacy AwsSecretsManagerUtil didn't return usable JSON. Secrets will not be loaded from AWS Secrets Manager in this runtime.
+23-01-2026_18:14:56.804{UTC}|report-tool|WARN ||c.t.c.SecretConfig|Secret JSON not available. Returning empty SecretProperties. In production, set AWS_SECRETS_NAME or aws.secrets.name and ensure IAM permissions.
+23-01-2026_18:14:57.033{UTC}|report-tool|INFO ||o.s.s.w.DefaultSecurityFilterChain|Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@318e0ccd, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7ac9215d, org.springframework.security.web.context.SecurityContextPersistenceFilter@53ae25e6, org.springframework.security.web.header.HeaderWriterFilter@3a563cc, org.springframework.web.filter.CorsFilter@4b09ceea, org.springframework.security.web.authentication.logout.LogoutFilter@15daf544, com.talentstream.filter.JwtRequestFilter@3c22e4d5, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@65597716, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4d4ad372, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@28fc65d4, org.springframework.security.web.session.SessionManagementFilter@282a4c77, org.springframework.security.web.access.ExceptionTranslationFilter@598df99c, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@4c75fc7b]
+23-01-2026_18:14:57.382{UTC}|report-tool|INFO ||o.s.b.d.a.OptionalLiveReloadServer|LiveReload server is running on port 35729
+23-01-2026_18:14:57.391{UTC}|report-tool|INFO ||o.s.b.a.e.w.EndpointLinksResolver|Exposing 2 endpoint(s) beneath base path '/actuator'
+23-01-2026_18:14:57.415{UTC}|report-tool|INFO ||o.a.c.h.Http11NioProtocol|Starting ProtocolHandler ["http-nio-8081"]
+23-01-2026_18:14:57.424{UTC}|report-tool|INFO ||o.s.b.w.e.t.TomcatWebServer|Tomcat started on port(s): 8081 (http) with context path ''
+23-01-2026_18:14:57.438{UTC}|report-tool|INFO ||c.t.TalentStreamApplication|Started TalentStreamApplication in 17.505 seconds (JVM running for 17739.953)
+23-01-2026_18:14:57.445{UTC}|report-tool|INFO ||o.s.b.d.a.ConditionEvaluationDeltaLoggingListener|Condition evaluation unchanged
