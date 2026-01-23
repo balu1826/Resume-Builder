@@ -43,7 +43,8 @@ public class ResumeAIEnhancerService {
                             "Return only the enhanced summary text.";
         }
            
-        return callGroq(prompt);
+        //return callGroq(prompt);
+        return summary;
     }
 
     /**
@@ -57,7 +58,8 @@ public class ResumeAIEnhancerService {
             "PROJECT TITLE: " + title + "\n" +
             "DESCRIPTION: " + description;
 
-        return callGroq(prompt);
+        //return callGroq(prompt);
+        return description;
     }
 
     private String callGroq(String userContent) {
