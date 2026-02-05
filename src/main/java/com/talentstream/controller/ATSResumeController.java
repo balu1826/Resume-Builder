@@ -65,7 +65,7 @@ public class ATSResumeController {
         		    ApplicantFullDataDTO raw = resumeService.getFullApplicant(request.getApplicantId());
         		 
         		    // 2. Get formatter based on version
-        		    ATSFormatter formatter = resolver.resolve(request.getResumeVersion());
+        		    ATSFormatter formatter = resolver.resolve(Integer.valueOf(request.getResumeVersion()));
 
         		    // 3. Convert raw → ResumeSchemaDTO (NO mapping layer needed)
         		    ResumeSchemaDTO schema = formatter.format1(raw);

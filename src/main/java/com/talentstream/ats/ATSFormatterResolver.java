@@ -1,24 +1,29 @@
 package com.talentstream.ats;
 
-import org.springframework.stereotype.Component;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.springframework.stereotype.Component;
 @Component
 public class ATSFormatterResolver {
 
-    private final ATSFormatter atsV1Formatter;
+    private final Map<Integer, ATSFormatter> formatterMap = new HashMap<>();
 
-    public ATSFormatterResolver(ATSFormatter atsV1Formatter) {
-        this.atsV1Formatter = atsV1Formatter;
+    public ATSFormatterResolver(
+            ATSV1Formatter v1Formatter,
+            ATSV2Formatter v2Formatter) {
+
+        formatterMap.put(1, v1Formatter);
+        formatterMap.put(2, v2Formatter);
     }
 
-    public ATSFormatter resolve(String version) {
-
-        // Future-ready switch
-        if ("V1".equalsIgnoreCase(version)) {
-            return atsV1Formatter;
+    public ATSFormatter resolve(int templateType) {
+        ATSFormatter formatter = formatterMap.get(templateType);
+        if (formatter == null) {
+            throw new IllegalArgumentException(
+                    "Unsupported template type: " + templateType
+            );
         }
-
-        // default fallback
-        return atsV1Formatter;
+        return formatter;
     }
 }
