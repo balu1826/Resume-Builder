@@ -6,10 +6,10 @@ import com.talentstream.service.ResumeAIEnhancerService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HtmlResumeRenderer {
+public class HtmlResumeRendererV1 implements ResumeHtmlRenderer {
 	private final ResumeAIEnhancerService resumeAIEnhancerService ;
 	
-    public HtmlResumeRenderer(ResumeAIEnhancerService resumeAIEnhancerService) {
+    public HtmlResumeRendererV1(ResumeAIEnhancerService resumeAIEnhancerService) {
 		super();
 		this.resumeAIEnhancerService = resumeAIEnhancerService;
 	}

@@ -6,8 +6,9 @@ import com.talentstream.dto.ATSResumeProfileDTO;
 import com.talentstream.dto.ApplicantFullDataDTO;
 import com.talentstream.dto.ResumeRequestDTO;
 import com.talentstream.dto.ResumeSchemaDTO;
-import com.talentstream.ats.HtmlResumeRenderer;
 import com.talentstream.ats.PdfResumeRenderer;
+import com.talentstream.ats.ResumeHtmlRenderer;
+import com.talentstream.ats.ResumeHtmlRendererResolver;
 import com.talentstream.service.ATSResumeProfileAdapter;
 import com.talentstream.service.ResumeService;
 
@@ -21,20 +22,20 @@ public class ATSResumeController {
 
     private final ATSResumeProfileAdapter adapter;
     private final ATSFormatterResolver resolver;
-    private final HtmlResumeRenderer renderer;
+    private final ResumeHtmlRendererResolver htmlRendererResolver;
     private final ResumeService resumeService;
     PdfResumeRenderer pdfRenderer;
 
     public ATSResumeController(
             ATSResumeProfileAdapter adapter,
             ATSFormatterResolver resolver,
-            HtmlResumeRenderer renderer,
+            ResumeHtmlRendererResolver htmlRendererResolver,
             PdfResumeRenderer pdfRenderer,
             ResumeService resumeService
     ) {
         this.adapter = adapter;
         this.resolver = resolver;
-        this.renderer = renderer;
+        this.htmlRendererResolver = htmlRendererResolver;
         this.pdfRenderer=pdfRenderer;
         this.resumeService=resumeService;
     }
@@ -72,8 +73,16 @@ public class ATSResumeController {
         		   
 
         		    // 4. Convert schema → HTML
-        		    String html = renderer.render(schema,raw.getSummary(),raw.getTitle(),request.getJd());
-        		   
+        		    ResumeHtmlRenderer renderer =
+        		            htmlRendererResolver.resolve(Integer.valueOf(request.getResumeVersion()));
+
+        		    String html = renderer.render(
+        		            schema,
+        		            raw.getSummary(),
+        		            raw.getTitle(),
+        		            request.getJd()
+        		    );
+        		    System.out.println(html);
 
         		    // 5. Convert HTML → PDF bytes
         		    byte[] pdf = pdfRenderer.render(html);

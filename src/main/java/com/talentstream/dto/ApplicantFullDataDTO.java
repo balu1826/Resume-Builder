@@ -1,4 +1,5 @@
 package com.talentstream.dto;
+
 public class ApplicantFullDataDTO {
 
     private Long applicantId;

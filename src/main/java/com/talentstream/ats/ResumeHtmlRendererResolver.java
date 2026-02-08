@@ -1,0 +1,27 @@
+package com.talentstream.ats;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class ResumeHtmlRendererResolver {
+
+    private final Map<Integer, ResumeHtmlRenderer> rendererMap = new HashMap<>();
+
+    public ResumeHtmlRendererResolver(HtmlResumeRendererV1 v1,
+                                      HtmlResumeRendererV2 v2) {
+
+        rendererMap.put(1, v1); // existing
+        rendererMap.put(2, v2); // NEW template
+    }
+
+    public ResumeHtmlRenderer resolve(int templateType) {
+        ResumeHtmlRenderer renderer = rendererMap.get(templateType);
+        if (renderer == null) {
+            throw new IllegalArgumentException("Invalid template type: " + templateType);
+        }
+        return renderer;
+    }
+}
