@@ -43,8 +43,8 @@ public class ResumeAIEnhancerService {
                             "Return only the enhanced summary text.";
         }
            
-        //return callGroq(prompt);
-        return summary;
+        return callGroq(prompt);
+       
     }
 
     /**
