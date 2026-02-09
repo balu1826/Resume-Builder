@@ -1,12 +1,20 @@
 package com.talentstream.ats;
 
 import com.talentstream.dto.ResumeSchemaDTO;
+import com.talentstream.service.ResumeAIEnhancerService;
+
 import org.springframework.stereotype.Component;
 
 @Component
 public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
+	private final  ResumeAIEnhancerService  resumeAIEnhancerService ;
+	
+    public HtmlResumeRendererV2(ResumeAIEnhancerService resumeAIEnhancerService) {
+		super();
+		this.resumeAIEnhancerService = resumeAIEnhancerService;
+	}
 
-    @Override
+	@Override
     public String render(ResumeSchemaDTO resume,
                          String summary,
                          String role,
@@ -61,7 +69,7 @@ public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
     	if (summarySection != null && !summarySection.getLines().isEmpty()) {
     	    html.append("<h2>Profile</h2>");
     	    html.append("<p>")
-    	        .append(esc(summarySection.getLines().get(0)))
+    	        .append( resumeAIEnhancerService.enhanceSummary(esc(summarySection.getLines().get(0)), role, jd) )
     	        .append("</p>");
     	}
 

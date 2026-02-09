@@ -14,7 +14,7 @@ public class ResumeAIEnhancerService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String groqApiKey = "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";
+    private final String groqApiKey = "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";
     private final String groqApiUrl = "https://api.groq.com/openai/v1/chat/completions";
     private final String groqModel = "llama-3.1-8b-instant";
 
@@ -44,7 +44,7 @@ public class ResumeAIEnhancerService {
         }
            
         return callGroq(prompt);
-       
+        //return summary;
     }
 
     /**
