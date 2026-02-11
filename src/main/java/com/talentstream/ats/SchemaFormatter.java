@@ -13,10 +13,10 @@ import com.talentstream.dto.ApplicantFullDataDTO;
 import com.talentstream.dto.ResumeSchemaDTO;
 
 @Component
-public  class ATSV2Formatter implements ATSFormatter {
+public  class SchemaFormatter {
 
-	  @Override
-	    public ResumeSchemaDTO format1(ApplicantFullDataDTO dto) {
+	  
+	    public ResumeSchemaDTO format(ApplicantFullDataDTO dto) {
 
 	        // ===== HEADER =====
 	        String header =
@@ -147,9 +147,6 @@ public  class ATSV2Formatter implements ATSFormatter {
 	        }
 	    }
 
-		@Override
-		public ResumeSchemaDTO format(ATSResumeProfileDTO profile) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+	
 }
+

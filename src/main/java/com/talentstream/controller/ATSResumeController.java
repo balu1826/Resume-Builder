@@ -1,8 +1,6 @@
 package com.talentstream.controller;
 
-import com.talentstream.ats.ATSFormatter;
-import com.talentstream.ats.ATSFormatterResolver;
-import com.talentstream.dto.ATSResumeProfileDTO;
+import com.talentstream.ats.SchemaFormatter;
 import com.talentstream.dto.ApplicantFullDataDTO;
 import com.talentstream.dto.ResumeRequestDTO;
 import com.talentstream.dto.ResumeSchemaDTO;
@@ -21,20 +19,20 @@ import org.springframework.web.bind.annotation.*;
 public class ATSResumeController {
 
     private final ATSResumeProfileAdapter adapter;
-    private final ATSFormatterResolver resolver;
+    private final SchemaFormatter formatter;
     private final ResumeHtmlRendererResolver htmlRendererResolver;
     private final ResumeService resumeService;
     PdfResumeRenderer pdfRenderer;
 
     public ATSResumeController(
             ATSResumeProfileAdapter adapter,
-            ATSFormatterResolver resolver,
+            SchemaFormatter formatter,
             ResumeHtmlRendererResolver htmlRendererResolver,
             PdfResumeRenderer pdfRenderer,
             ResumeService resumeService
     ) {
         this.adapter = adapter;
-        this.resolver = resolver;
+        this.formatter =formatter;
         this.htmlRendererResolver = htmlRendererResolver;
         this.pdfRenderer=pdfRenderer;
         this.resumeService=resumeService;
@@ -65,14 +63,13 @@ public class ATSResumeController {
         			
         		    ApplicantFullDataDTO raw = resumeService.getFullApplicant(request.getApplicantId());
         		 
-        		    // 2. Get formatter based on version
-        		    ATSFormatter formatter = resolver.resolve(Integer.valueOf(request.getResumeVersion()));
+        		 
 
-        		    // 3. Convert raw → ResumeSchemaDTO (NO mapping layer needed)
-        		    ResumeSchemaDTO schema = formatter.format1(raw);
+        		    // 2. Convert raw → ResumeSchemaDTO (NO mapping layer needed)
+        		    ResumeSchemaDTO schema =formatter.format(raw);
         		   
 
-        		    // 4. Convert schema → HTML
+        		    // 3. Convert schema → HTML
         		    ResumeHtmlRenderer renderer =
         		            htmlRendererResolver.resolve(Integer.valueOf(request.getResumeVersion()));
 
@@ -84,10 +81,10 @@ public class ATSResumeController {
         		    );
         		    System.out.println(html);
 
-        		    // 5. Convert HTML → PDF bytes
+        		    // 4. Convert HTML → PDF bytes
         		    byte[] pdf = pdfRenderer.render(html);
 
-        		    // 6. Return PDF
+        		    // 5. Return PDF
         		    return ResponseEntity.ok()
         		            .header("Content-Disposition", "attachment; filename=ATS_Resume.pdf")
         		            .body(pdf);
