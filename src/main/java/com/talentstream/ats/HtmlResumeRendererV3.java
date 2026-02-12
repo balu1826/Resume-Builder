@@ -30,13 +30,13 @@ public class HtmlResumeRendererV3 implements ResumeHtmlRenderer {
 		/* ===== PDF SAFE CSS ===== */
 		html.append("<style>");
 		html.append("body{font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;margin:0;padding:0;color:#1a1a1a;}");
-		html.append(".wrapper{width:800px;margin:20px auto;background:#ffffff;padding:30px;}");
+		html.append(".wrapper{width:950px;margin:20px auto;background:#ffffff;padding:30px;}");
 		html.append("h1{font-size:22px;margin:0;text-transform:uppercase;}");
 		html.append(".role{font-size:12px;color:#555;margin-top:4px;}");
 		html.append(".contact{font-size:11px;color:#666;margin-top:6px;}");
 		html.append("h2{font-size:11px;text-transform:uppercase;color:#94a3b8;margin:20px 0 8px 0;}");
 		html.append("p{font-size:12px;line-height:1.6;margin:4px 0;}");
-		html.append(".section{margin-bottom:18px;}");
+		html.append(".section{margin-bottom:12px;}");
 		html.append(".left{width:30%;vertical-align:top;border-right:1px solid #e5e7eb;padding-right:15px;}");
 		html.append(".right{width:70%;vertical-align:top;padding-left:15px;}");
 		html.append(".skill{display:inline-block;background:#eff6ff;color:#2563eb;font-size:10px;padding:4px 6px;margin:2px;border-radius:3px;}");
@@ -74,8 +74,9 @@ public class HtmlResumeRendererV3 implements ResumeHtmlRenderer {
 		if (summarySection != null && !summarySection.getLines().isEmpty()) {
 		    html.append("<div class='section'>");
 		    html.append("<h2>Profile</h2>");
-		    html .append( resumeAIEnhancerService.enhanceSummary(esc(summarySection.getLines().get(0)), role, jd) )
-		    .append("</p>");
+		    html.append("<p>")
+	        .append( resumeAIEnhancerService.enhanceSummary(esc(summarySection.getLines().get(0)), role, jd) )
+	        .append("</p>"); 
 		    html.append("</div>");
 		}
 
@@ -189,19 +190,7 @@ public class HtmlResumeRendererV3 implements ResumeHtmlRenderer {
 
     // ===== helpers =====
 
-    private void addBulletSection(StringBuilder html,
-                                  ResumeSchemaDTO resume,
-                                  String... titles) {
-
-        ResumeSchemaDTO.Section section = getSection(resume, titles);
-        if (section == null || section.getLines().isEmpty()) return;
-
-        html.append("<h2>").append(titles[0]).append("</h2><ul>");
-        for (String line : section.getLines()) {
-            html.append("<li>").append(esc(line)).append("</li>");
-        }
-        html.append("</ul>");
-    }
+  
 
     private ResumeSchemaDTO.Section getSection(ResumeSchemaDTO resume, String... titles) {
         for (String t : titles) {

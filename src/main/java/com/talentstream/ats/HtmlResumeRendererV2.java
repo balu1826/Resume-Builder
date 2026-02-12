@@ -158,19 +158,7 @@ public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
 
     // ===== helpers =====
 
-    private void addBulletSection(StringBuilder html,
-                                  ResumeSchemaDTO resume,
-                                  String... titles) {
 
-        ResumeSchemaDTO.Section section = getSection(resume, titles);
-        if (section == null || section.getLines().isEmpty()) return;
-
-        html.append("<h2>").append(titles[0]).append("</h2><ul>");
-        for (String line : section.getLines()) {
-            html.append("<li>").append(esc(line)).append("</li>");
-        }
-        html.append("</ul>");
-    }
 
     private ResumeSchemaDTO.Section getSection(ResumeSchemaDTO resume, String... titles) {
         for (String t : titles) {
