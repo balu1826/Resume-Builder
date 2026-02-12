@@ -11,10 +11,12 @@ public class ResumeHtmlRendererResolver {
     private final Map<Integer, ResumeHtmlRenderer> rendererMap = new HashMap<>();
 
     public ResumeHtmlRendererResolver(HtmlResumeRendererV1 v1,
-                                      HtmlResumeRendererV2 v2) {
+                                      HtmlResumeRendererV2 v2,
+                                      HtmlResumeRendererV3 v3 ) {
 
         rendererMap.put(1, v1); // existing
         rendererMap.put(2, v2); // NEW template
+        rendererMap.put(3, v3);
     }
 
     public ResumeHtmlRenderer resolve(int templateType) {
