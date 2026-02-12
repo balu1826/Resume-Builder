@@ -71,7 +71,7 @@ public class ATSResumeController {
 
         		    // 3. Convert schema → HTML
         		    ResumeHtmlRenderer renderer =
-        		            htmlRendererResolver.resolve(Integer.valueOf(request.getResumeVersion()));
+        		            htmlRendererResolver.resolve(request.getResumeVersion());
 
         		    String html = renderer.render(
         		            schema,

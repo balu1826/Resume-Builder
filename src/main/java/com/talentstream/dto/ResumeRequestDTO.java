@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 public class ResumeRequestDTO {
 		@NotNull(message="Applicant id reuired")
 	    private long applicantId;
-	    private String resumeVersion; 
+	    private int resumeVersion; 
 	    private String jd;
 		public long getApplicantId() {
 			return applicantId;
@@ -13,10 +13,10 @@ public class ResumeRequestDTO {
 		public void setApplicantId(long applicantId) {
 			this.applicantId = applicantId;
 		}
-		public String getResumeVersion() {
+		public int getResumeVersion() {
 			return resumeVersion;
 		}
-		public void setResumeVersion(String resumeVersion) {
+		public void setResumeVersion(int resumeVersion) {
 			this.resumeVersion = resumeVersion;
 		}
 		public String getJd() {
