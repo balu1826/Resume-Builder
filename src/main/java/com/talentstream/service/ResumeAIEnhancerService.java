@@ -14,51 +14,49 @@ public class ResumeAIEnhancerService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String groqApiKey = "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";
+    private final String groqApiKey = "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";
     private final String groqApiUrl = "https://api.groq.com/openai/v1/chat/completions";
     private final String groqModel = "llama-3.1-8b-instant";
 
     /**
      * Enhances resume summary into 3–4 line ATS-friendly professional format.
      */
-    public String enhanceSummary(String summary,String role,String jd) {
-        String prompt ;
-        if(jd.trim().length()>1) {
-        	  prompt =
-        	            "Enhance the following resume summary to align with the provided Job Description.\n" +
-        	            "Use relevant skills, keywords, and responsibilities from the JD to make it ATS-friendly and professional.\n" +
-        	            "Output must be 3-4 lines, concise, and factual.\n" +
-        	            "Do NOT add markdown, bullets, JSON, or headings.\n\n" +
-        	            "SUMMARY:\n" + summary + "\n\n" +
-        	            "JOB DESCRIPTION:\n" + jd + "\n\n" +
-        	            "Return only the enhanced summary text.";
+    public String enhanceSummary(String summary, String role, String jd) {
+        String prompt;
+        if (jd.trim().length() > 1) {
+            prompt = "Enhance the following resume summary to align with the provided Job Description.\n" +
+                    "Use relevant skills, keywords, and responsibilities from the JD to make it ATS-friendly and professional.\n"
+                    +
+                    "Output must be 3-4 lines, concise, and factual.\n" +
+                    "Do NOT add markdown, bullets, JSON, or headings.\n\n" +
+                    "SUMMARY:\n" + summary + "\n\n" +
+                    "JOB DESCRIPTION:\n" + jd + "\n\n" +
+                    "Return only the enhanced summary text.";
+        } else {
+            prompt = "Enhance the following resume summary to suit the role of '" + role + "'.\n" +
+                    "Use relevant role keywords to improve ATS score.\n" +
+                    "Output must be 3-4 lines, concise, professional, and factual.\n" +
+                    "Do NOT add markdown, bullets, JSON, or headings.\n\n" +
+                    "SUMMARY:\n" + summary + "\n\n" +
+                    "Return only the enhanced summary text.";
         }
-        else {
-        	prompt =
-                    "Enhance the following resume summary to suit the role of '" + role + "'.\n" +
-                            "Use relevant role keywords to improve ATS score.\n" +
-                            "Output must be 3-4 lines, concise, professional, and factual.\n" +
-                            "Do NOT add markdown, bullets, JSON, or headings.\n\n" +
-                            "SUMMARY:\n" + summary + "\n\n" +
-                            "Return only the enhanced summary text.";
-        }
-           
+
         return callGroq(prompt);
-        //return summary;
+        // return summary;
     }
 
     /**
      * Enhances project title + description into strong bullet-point style.
      */
     public String enhanceProject(String title, String description) {
-        String prompt =
-            "Rewrite the following project details into 2–4 professional bullet points using strong action verbs.\n" +
-            "Highlight responsibilities, impact, technologies, and outcomes.\n" +
-            "Do NOT add markdown formatting, code blocks, or JSON. Just bullet points separated by newline.\n\n" +
-            "PROJECT TITLE: " + title + "\n" +
-            "DESCRIPTION: " + description;
+        String prompt = "Rewrite the following project details into 2–4 professional bullet points using strong action verbs.\n"
+                +
+                "Highlight responsibilities, impact, technologies, and outcomes.\n" +
+                "Do NOT add markdown formatting, code blocks, or JSON. Just bullet points separated by newline.\n\n" +
+                "PROJECT TITLE: " + title + "\n" +
+                "DESCRIPTION: " + description;
 
-        //return callGroq(prompt);
+        // return callGroq(prompt);
         return description;
     }
 
@@ -93,8 +91,7 @@ public class ResumeAIEnhancerService {
 
         // Send request
         ResponseEntity<String> response = restTemplate.exchange(
-            groqApiUrl, HttpMethod.POST, entity, String.class
-        );
+                groqApiUrl, HttpMethod.POST, entity, String.class);
 
         // Parse response
         JsonObject json = JsonParser.parseString(response.getBody()).getAsJsonObject();
