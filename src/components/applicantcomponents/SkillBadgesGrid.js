@@ -7,7 +7,7 @@ import emptySkillImg from '../../images/skillbadge-empty-state-img.png';
 import { useNavigate } from "react-router-dom";
 import "./Portfolio.css";
 
-const SkillBadgesGrid = () => {
+const SkillBadgesGrid = ({ onLoaded, showContent }) => {
   const { user } = useUserContext();
   const [data, setData] = useState({ skillsRequired: [], applicantSkillBadges: [] });
   const [loading, setLoading] = useState(true);
@@ -23,13 +23,31 @@ const SkillBadgesGrid = () => {
         setData(res.data || { skillsRequired: [], applicantSkillBadges: [] });
       } catch (e) {
         console.error('Failed to load skill badges', e);
-      } finally {
-        setLoading(false);
-      }
+      }finally {
+  setLoading(false);
+  console.log("SKILLS LOADED");
+  onLoaded?.();
+}
     })();
   }, [user.id]);
 
-  if (loading) return null;
+ if (!showContent) {
+  return (
+    <div className="skill-badges-grid">
+      {[...Array(4)].map((_, i) => (
+        <div
+          key={i}
+          className="skeleton"
+          style={{
+            height: 120,
+            borderRadius: 10,
+            marginBottom: 15
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
   const filteredBadges = data.applicantSkillBadges.filter((b) => {
     const status = (b?.status || b?.flag || "").toLowerCase();

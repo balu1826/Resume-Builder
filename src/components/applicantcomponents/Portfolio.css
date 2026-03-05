@@ -902,4 +902,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {  filter: grayscale(1);
   gap: 10px;
   }
 }
- 
+.badge-progress-wrapper {
+  width: 100%;
+}
+

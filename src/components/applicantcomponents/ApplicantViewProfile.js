@@ -11,15 +11,33 @@ import "./modalpopup.css";
 import "./Portfolio.css";
 import ApplicantAtsResume from "./ApplicantAtsResume/ApplicantAtsResume"; 
 import { useResume } from "./ResumeContext";
-import { useEffect } from "react";
+import  { useState, useEffect } from "react";
 
 const ApplicantViewProfile = () => {
   const { user } = useUserContext();
   const applicantId = user?.id;
   const { resumeState, setProfileData } = useResume();
   const profileData = resumeState.profileData;
+   const [loadedSections, setLoadedSections] = useState({
+  header: false,
+  summary: false,
+  personal: false,
+   education: false,
+   projects: false,
+   skills: false
+   //SkillBadgesGrid: false
+});
+const markLoaded = (section) => {
+  setLoadedSections((prev) => ({
+    ...prev,
+    [section]: true
+  }));
+};
+const allLoaded = Object.values(loadedSections).every(Boolean);
+console.log("Loaded sections:", loadedSections);
 
   useEffect(() => {
+    console.log("Loaded sections:", loadedSections);
   console.log("Context profileData updated:", resumeState.profileData);
     console.log("Context profileData updated:", resumeState.jobDescription);
  
@@ -49,8 +67,12 @@ const ApplicantViewProfile = () => {
         {applicantId ? (
           <>
               <ApplicantHeaderComponent applicantId={applicantId}
-              setProfileData={setProfileData} />
+              setProfileData={setProfileData} 
+                onLoaded={() => markLoaded("header")}
+  showContent={allLoaded}/>
               <ResumeSummaryCard applicantId={applicantId} 
+                  onLoaded={() => markLoaded("summary")}
+  showContent={allLoaded}
               onChange={(data) =>
                 setProfileData((prev) => ({
                   ...prev,
@@ -58,6 +80,8 @@ const ApplicantViewProfile = () => {
                 }))
               }/>
               <PersonalDetailsCard applicantId={applicantId} 
+               onLoaded={() => markLoaded("personal")}
+  showContent={allLoaded}
               onChange={
                 (data) =>
                   setProfileData((prev) => ({
@@ -66,6 +90,8 @@ const ApplicantViewProfile = () => {
                   }))
               }/>
               <EducationDetailsCard applicantId={applicantId} 
+              onLoaded={() => markLoaded("education")}
+  showContent={allLoaded}
               onChange={(data) =>
                 setProfileData((prev) => ({
                   ...prev,
@@ -73,6 +99,8 @@ const ApplicantViewProfile = () => {
                 }))
               }/>
               <ProjectDetailsCard applicantId={applicantId} 
+               onLoaded={() => markLoaded("projects")}
+  showContent={allLoaded}
                onChange={(data) =>
                 setProfileData((prev) => ({
                   ...prev,
@@ -80,6 +108,8 @@ const ApplicantViewProfile = () => {
                 }))
               }/>
               <KeySkillsCard applicantId={applicantId} 
+              onLoaded={() => markLoaded("skills")}
+              showContent={allLoaded}
                onChange={
                 (data) =>
                   setProfileData((prev) => ({
@@ -88,13 +118,17 @@ const ApplicantViewProfile = () => {
                   }))
               }/>
 
-              <ApplicantAtsResume applicantId={applicantId} />
+              <ApplicantAtsResume applicantId={applicantId}
+                onLoaded={() => markLoaded("applicantAtsResume")}
+  showContent={allLoaded}  />
               {/* ===================== Skill Badges (NEW CARD) ===================== */}
               <div className="card-base soft-shadow">
                 <div className="card-title-row">
                   <h3 className="card-title common_style">Skill badges</h3>
                 </div>
-                <SkillBadgesGrid />
+                <SkillBadgesGrid
+                 onLoaded={() => markLoaded("skillBadges")}
+  showContent={allLoaded} />
               </div>
               {/* =================== /Skill Badges (NEW CARD) =================== */}
           </>
