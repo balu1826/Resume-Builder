@@ -695,8 +695,24 @@ const allLoadingDone =
 
                   </div>)}
 
-                     {/* MentorSphere */}
+                  {/* MentorSphere */}
                   <div className="mentor-sphere">
+                    {!allLoadingDone ? (
+  <div className="mentor-skeleton-header">
+
+    <div className="mentor-skeleton-top">
+      <div className="skeleton-title"></div>
+      <div className="skeleton-viewmore"></div>
+    </div>
+
+    <div className="mentor-skeleton-tabs">
+      <div className="skeleton-tab"></div>
+      <div className="skeleton-tab"></div>
+      <div className="skeleton-tab"></div>
+    </div>
+
+  </div>
+) : (<>
                     <div className="mentor-topSection">
                       <h4 id="tour-mentor-sphere">
                         Mentor sphere
@@ -713,7 +729,8 @@ const allLoadingDone =
                       <h4 >Realm of insight</h4>
                       <h4 >Insight hour</h4>
                     </div>
-                    {mentorLoading ? (
+                    </>)}
+                    {!allLoadingDone  ? (
                       <div className="mentor-skeleton-list">
                         {[...Array(4)].map((_, idx) => (
                           <div key={idx} className="mentor-skeleton-item">
@@ -728,9 +745,9 @@ const allLoadingDone =
                         {mentorConnectData?.items
                           ?.filter((item) => {
                             if (item.status !== "Upcoming") return false;
- 
+
                             const now = new Date();
- 
+
                             const sessionDate = new Date(
                               item.date[0],
                               item.date[1] - 1,
@@ -738,9 +755,9 @@ const allLoadingDone =
                               item.startTime[0],
                               item.startTime[1]
                             );
- 
+
                             const endTime = new Date(sessionDate.getTime() + (item.durationMinutes || 0) * 60000);
- 
+
                             return endTime > now;
                           })
                           ?.sort((a, b) => {
@@ -761,7 +778,7 @@ const allLoadingDone =
                             const formattedTime = `${(hours % 12) || 12}:${minutes}${period}`;
                             const defaultImages = [Nagulmeera, Karunakar, Karunakar, suhel];
                             const defaultImg = defaultImages[idx % defaultImages.length];
- 
+
                             return (
                               <div className="hover-scale" onClick={handleRedirectMentor}
                                 key={item.meetingId}
@@ -795,7 +812,7 @@ const allLoadingDone =
                                     {item.mentorName}
                                   </span>
                                 </div>
- 
+
                                 <span
                                   style={{
                                     fontSize: "12px",
@@ -806,7 +823,7 @@ const allLoadingDone =
                                 >
                                   {item.title}
                                 </span>
- 
+
                                 <span
                                   style={{
                                     fontSize: "12px",
@@ -823,8 +840,6 @@ const allLoadingDone =
                       </div>
                     )}
                   </div>
- 
- 
 
                   {/*  My Portfolio */}
                    {!allLoadingDone ? (
