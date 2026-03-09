@@ -8,6 +8,7 @@ import ApplicantUpdateProfile from '../../components/applicantcomponents/Applica
 import ApplicantViewProfile from '../../components/applicantcomponents/ApplicantViewProfile';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState,useEffect } from 'react';
+import ApplicantMyStreaks from '../../components/applicantcomponents/ApplicantMyStreaks';
 import ApplicantFindJobs from '../../components/applicantcomponents/ApplicantFindJobs';
 import ApplicantViewJob from '../../components/applicantcomponents/ApplicantViewJob';
 import ApplicantAppliedJobs from '../../components/applicantcomponents/ApplicantAppliedJobs';
@@ -102,6 +103,9 @@ function ApplicantHomePage() {
         case '/applicant-interview-status':
           setActiveRoute('interviewstatus');
         break;
+        case '/applicant-my-streaks':
+        setActiveRoute('mystreaks');
+        break;
         case '/applicant-change-password':
           setActiveRoute('changepassword');
         break;
@@ -180,6 +184,7 @@ function ApplicantHomePage() {
      {activeRoute === 'findjobs' && (<ApplicantFindJobs setSelectedJobId={setSelectedJobId} /> )}
      {activeRoute === 'myjobs' && (<MyJobs setSelectedJobId={setSelectedJobId} /> )}
      {activeRoute === 'dashboard' && <ApplicantDashboard />}
+       {activeRoute === 'mystreaks' && <ApplicantMyStreaks />}
      {activeRoute === 'profile' && <ApplicantUpdateProfile />}
      {activeRoute === 'viewprofile' && <ApplicantViewProfile />}
      {activeRoute === 'editprofile' && <ApplicantEditProfile />}

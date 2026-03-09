@@ -12,6 +12,7 @@ import RegisterPage from './pages/registerpage/RegisterPage';
 import ApplicantHomePage from './pages/applicantpages/ApplicantHomePage';
 import UserProvider from './components/common/UserProvider';
 import Logout from './components/common/Logout';
+import ApplicantMyStreaks from './components/applicantcomponents/ApplicantMyStreaks';
 import RecruiterLoginPage from './pages/recruiterpages/RecruiterLoginPage';
 import RecruiterHomePage from './pages/recruiterpages/RecruiterHomePage';
 import ApplicantForgotPasswordPage from './pages/loginpage/ApplicantForgotPasswordPage';
@@ -125,6 +126,7 @@ function App() {
                     <Route path="/applicant-delete-profile" element={<ApplicantHomePage />} />
                     <Route path="/applicant-job-alerts" element={<ApplicantHomePage />} />
                     <Route path="/applicant-take-test" element={<ApplicantHomePage />} />
+                      <Route path="/applicant-my-streaks" element={<ApplicantHomePage />} />
                     <Route path="/applicant-resume" element={<ApplicantHomePage />} />
                     <Route path="/applicant-hackathon" element={<ApplicantHomePage />} />
                     <Route path="/applicant-hackathon-details/:id" element={<ApplicantHomePage />} />
