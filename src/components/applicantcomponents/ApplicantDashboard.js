@@ -112,6 +112,7 @@ const ApplicantDashboard = () => {
     !techBuzzLoading &&
     !badgeLoading &&
     !portfolioLoading &&
+    !streakLoading &&
     !mentorLoading;
   const fetchCard = async () => {
     try {
@@ -903,6 +904,9 @@ const ApplicantDashboard = () => {
                   <div className="portfolio-group-col">
 
                     {/* Recent Streaks */}
+                       {!allLoadingDone ? (
+                      <div className="adb-streak-skeleton-card"></div>
+                    ) : (
                     <div className="recent-streaks-card">
                       <div className="streak-left-section">
 
@@ -958,7 +962,7 @@ const ApplicantDashboard = () => {
                           <span className="longest-streak-num">{(streakDetails?.longestStreak || 0).toString().padStart(2, '0')}</span>
                         </div>
                       </div>
-                    </div>
+                    </div>)}
                     {/*  My Portfolio */}
                     {!allLoadingDone ? (
                       <div className="portfolio">

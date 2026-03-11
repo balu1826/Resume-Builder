@@ -284,7 +284,8 @@ const ApplicantMyStreaks = () => {
                             <div className="revealed-questions-list">
                                 {revealedAnswers.map((item, index) => (
                                     <div key={index} className="revealed-question-block">
-                                        <h4 className="r-question-text">{item.questionText || item.question}</h4>
+                                        <h4 className="r-question-text">{index + 1}. {item.questionText || item.question}</h4>
+                   
                                         <div className="r-options-container">
                                             {item.options && Object.entries(item.options).some(([key, val]) => item.correctAnswer === key || item.correctAnswer === val) ? (
                                                 Object.entries(item.options).map(([key, val]) => {
