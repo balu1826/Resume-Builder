@@ -11,6 +11,7 @@ const StreakExamModal = ({ userId, onClose, onExamCompleted }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showWarning, setShowWarning] = useState(false);
+  const [showSnackBar, setShowSnackBar] = useState(false);
 
   // Formatted current date logic for header
   const today = new Date();
@@ -78,34 +79,42 @@ const StreakExamModal = ({ userId, onClose, onExamCompleted }) => {
   };
 
   const handleSubmit = async () => {
-    try {
-      const jwtToken = localStorage.getItem('jwtToken');
 
-      // Hit completion endpoint using {applicantId}/complete
-      await axios.post(`${apiUrl}/streak/${userId}/complete`, selectedAnswers, {
-        headers: { Authorization: `Bearer ${jwtToken}` }
-      });
+  // Check if all questions attempted
+  if (Object.keys(selectedAnswers).length < questions.length) {
+    setShowSnackBar(true);
 
-      setIsSubmitted(true);
-      if (onExamCompleted) {
-        onExamCompleted();
-      }
+    setTimeout(() => {
+      setShowSnackBar(false);
+    }, 3000);
 
-    } catch (err) {
-      console.error("Failed to submit streak exam", err);
-      // If the backend says 409 Conflict, it means they already saved the streak today. 
-      // Treat this as a successful "already completed" scenario so they can finish the modal
-      if (err.response && err.response.status === 409) {
-        setIsSubmitted(true);
-        if (onExamCompleted) {
-          onExamCompleted();
-        }
-      } else {
-        // Let the user know if the API call failed for another reason
-        alert(err.response?.data?.message || "Failed to submit exam results. Please check the connection.");
-      }
+    return;
+  }
+
+  try {
+    const jwtToken = localStorage.getItem('jwtToken');
+
+    await axios.post(`${apiUrl}/streak/${userId}/complete`, selectedAnswers, {
+      headers: { Authorization: `Bearer ${jwtToken}` }
+    });
+
+    setIsSubmitted(true);
+
+    if (onExamCompleted) {
+      onExamCompleted();
     }
-  };
+
+  } catch (err) {
+    console.error("Failed to submit streak exam", err);
+
+    if (err.response && err.response.status === 409) {
+      setIsSubmitted(true);
+      if (onExamCompleted) onExamCompleted();
+    } else {
+      alert(err.response?.data?.message || "Failed to submit exam results.");
+    }
+  }
+};
 
   const handleCloseClick = () => {
     if (isSubmitted) {
@@ -139,6 +148,7 @@ const StreakExamModal = ({ userId, onClose, onExamCompleted }) => {
     console.log("Returning error state. error:", error, "questions.length:", questions.length);
     return (
       <div className="streak-modal-overlay">
+        
         <div className="streak-modal-content">
           <div className="streak-modal-header">
             <div className="streak-header-titles">
@@ -158,6 +168,21 @@ const StreakExamModal = ({ userId, onClose, onExamCompleted }) => {
 
   return (
     <div className="streak-modal-overlay">
+  {showSnackBar && (
+  <div className="streak-snackbar">
+    <div className="snackbar-icon">✓</div>
+    <span className="snackbar-text">
+      Attempt all the questions to submit the test
+    </span>
+
+    <button
+      className="snackbar-close"
+      onClick={() => setShowSnackBar(false)}
+    >
+      ✕
+    </button>
+  </div>
+)}
       <div className="streak-modal-content">
         {/* Warning Popup */}
         {showWarning && (
@@ -299,7 +324,7 @@ const StreakExamModal = ({ userId, onClose, onExamCompleted }) => {
                 <button
                   className="streak-submit-btn"
                   onClick={handleSubmit}
-                  disabled={Object.keys(selectedAnswers).length < questions.length}
+                  disabled={false}
                 >
                   Submit
                 </button>

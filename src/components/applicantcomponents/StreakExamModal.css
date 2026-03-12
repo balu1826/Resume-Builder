@@ -349,3 +349,61 @@
   margin-bottom: 0;
   padding-bottom: 0px;
 }
+.streak-snackbar {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #333;
+  padding: 14px 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  z-index: 9999;
+  min-width: 320px;
+  animation: snackbarSlide 0.3s ease;
+}
+
+.snackbar-icon {
+  background: #28a745;
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.snackbar-text {
+  flex: 1;
+  font-size: 14px;
+}
+
+.snackbar-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+}
+
+.snackbar-close:hover {
+  color: black;
+}
+
+@keyframes snackbarSlide {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

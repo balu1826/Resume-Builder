@@ -69,7 +69,8 @@ const ApplicantDashboard = () => {
   const [bronzeScore, setBronzeScore] = useState(200);
   const [silverScore, setSilverScore] = useState(300);
   const [goldScore, setGoldScore] = useState(500);
-
+const [showSnackBar, setShowSnackBar] = useState(false);
+const [snackBarMessage, setSnackBarMessage] = useState("");
   const bronzeWidth = (bronzeScore / goldScore) * 100;
   const silverWidth = ((silverScore - bronzeScore) / goldScore) * 100;
   const goldWidth = ((goldScore - silverScore) / goldScore) * 100;
@@ -156,6 +157,12 @@ const ApplicantDashboard = () => {
           headers: { Authorization: `Bearer ${jwtToken}` }
         });
         setStreakDetails(response.data);
+         // ✅ Show popup only if attempted today
+      if (!response.data?.attemptedToday) {
+        setTimeout(() => {
+          setShowStreakModal(true);
+        }, 500);
+      }
       } catch (err) {
         console.error("Failed to fetch streak details:", err);
       } finally {
@@ -179,6 +186,22 @@ const ApplicantDashboard = () => {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       setStreakDetails(response.data);
+      // ✅ Snackbar message logic
+    if (response.data.monthlyRestoreRemaining > 0) {
+      setSnackBarMessage(
+        `Streak restored successfully! You still have ${response.data.monthlyRestoreRemaining} restore ${response.data.monthlyRestoreRemaining === 1 ? "chance" : "chances"} left this month.`
+      );
+    } else {
+      setSnackBarMessage(
+        "Streak restored successfully! You have used your last restore chance for this month."
+      );
+    }
+
+    setShowSnackBar(true);
+
+    setTimeout(() => {
+      setShowSnackBar(false);
+    }, 4000);
     } catch (err) {
       console.error("Failed to restore streak:", err);
     } finally {
@@ -186,21 +209,6 @@ const ApplicantDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    if (!user?.id) return;
-
-    // Check if the streak modal has been shown today
-    // const currentDay = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    // const STREAK_MODAL_KEY = `streak_modal_shown_${currentDay}_${user.id}`;
-
-    // const hasBeenShownToday = safeGet(STREAK_MODAL_KEY);
-
-    // For testing, always show it:
-    setTimeout(() => {
-      console.log("Setting show streak modal to true!");
-      setShowStreakModal(true);
-    }, 1000); // Slight delay for better UX
-  }, [user?.id]);
 
   useEffect(() => {
     if (didInitRef.current) return;
@@ -927,15 +935,30 @@ const ApplicantDashboard = () => {
                         <div className="streak-days-row">
                           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => {
                             const todayIndex = new Date().getDay();
-                            const currentStreak = streakDetails?.currentStreak || 0;
-                            const streakStart = todayIndex - currentStreak + 1;
+                                    const currentStreak = streakDetails?.currentStreak || 0;
+                              const attemptedToday = streakDetails?.attemptedToday || false;
+                              const restoreAvailable = streakDetails?.restoreAvailable || false;
+                              const yesterdayIndex = todayIndex === 0 ? 6 : todayIndex - 1;
+                                let status = 'upcoming';
 
-                            let status = 'upcoming';
-                            if (index <= todayIndex && index >= streakStart) {
-                              status = 'taken';
-                            } else if (index <= todayIndex && index < streakStart) {
-                              status = 'missed';
-                            }
+                              if (index === todayIndex) {
+                                status = attemptedToday ? 'taken' : 'upcoming';
+                              } else if (index < todayIndex) {
+                                if (restoreAvailable && index === yesterdayIndex) {
+                                  status = 'restore-blink';
+                                } else {
+                                  // Determine streak range
+                                  const streakEnd = attemptedToday ? todayIndex : todayIndex - 1;
+                                  const streakStart = streakEnd - currentStreak + 1;
+                                  if (index >= streakStart && index <= streakEnd && currentStreak > 0) {
+                                    status = 'taken';
+                                  } else {
+                                    status = 'missed';
+                                  }
+                                }
+                              } else {
+                                status = 'upcoming';
+                              }
 
                             const lostDayIndex = currentStreak === 0 ? todayIndex - 1 : todayIndex - currentStreak;
                             if (streakDetails?.restoreAvailable && index === lostDayIndex && lostDayIndex >= 0) {
@@ -965,6 +988,22 @@ const ApplicantDashboard = () => {
                         </div>
                       </div>
                     </div>)}
+             {showSnackBar && (
+  <div className="streak-snackbar">
+    <div className="snackbar-icon">✓</div>
+
+    <span className="snackbar-text">
+      {snackBarMessage}
+    </span>
+
+    <button
+      className="snackbar-close"
+      onClick={() => setShowSnackBar(false)}
+    >
+      ✕
+    </button>
+  </div>
+)}       
                     {/*  My Portfolio */}
                     {!allLoadingDone ? (
                       <div className="portfolio">
