@@ -156,7 +156,21 @@ const ApplicantMyStreaks = () => {
         // Default 
         return "default";
     };
-
+ if (loading) {
+        return (
+            <div className="border-style">
+                <div className="dashboard__content my-streaks-page">
+                    <div className="mystreaks-skeleton-container">
+                        <div className="skeleton-rect header"></div>
+                        <div className="skeleton-rect card"></div>
+                        <div className="skeleton-rect section-title"></div>
+                        <div className="skeleton-rect small-card"></div>
+                        <div className="skeleton-rect small-card"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="border-style">
             <div className="dashboard__content my-streaks-page">

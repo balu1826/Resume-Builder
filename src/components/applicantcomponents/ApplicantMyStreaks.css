@@ -432,3 +432,52 @@
     width: 100%;
   }
 }
+
+/* Page Level Skeleton */
+.mystreaks-skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.skeleton-rect {
+  background-color: #eee;
+  border-radius: 8px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-rect.header {
+  width: 200px;
+  height: 30px;
+  margin-bottom: 10px;
+}
+
+.skeleton-rect.card {
+  width: 100%;
+  height: 400px;
+}
+
+.skeleton-rect.section-title {
+  width: 150px;
+  height: 25px;
+  margin-top: 20px;
+}
+
+.skeleton-rect.small-card {
+  width: 100%;
+  height: 150px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.6;
+  }
+}

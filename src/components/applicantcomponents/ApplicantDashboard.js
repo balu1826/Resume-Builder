@@ -117,7 +117,9 @@ const ApplicantDashboard = () => {
   const fetchCard = async () => {
     try {
       if (!applicantId) return;
-
+      if (!streakDetails) {
+        setStreakLoading(true);
+      }
       const jwtToken = localStorage.getItem("jwtToken");
 
       const { data } = await axios.get(`${CARD_API}/${applicantId}/getApplciantCard`, {
