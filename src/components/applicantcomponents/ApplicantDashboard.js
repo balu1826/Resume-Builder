@@ -69,8 +69,8 @@ const ApplicantDashboard = () => {
   const [bronzeScore, setBronzeScore] = useState(200);
   const [silverScore, setSilverScore] = useState(300);
   const [goldScore, setGoldScore] = useState(500);
-const [showSnackBar, setShowSnackBar] = useState(false);
-const [snackBarMessage, setSnackBarMessage] = useState("");
+  const [showSnackBar, setShowSnackBar] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
   const bronzeWidth = (bronzeScore / goldScore) * 100;
   const silverWidth = ((silverScore - bronzeScore) / goldScore) * 100;
   const goldWidth = ((goldScore - silverScore) / goldScore) * 100;
@@ -156,31 +156,31 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
       setStreakDetails(response.data);
-       // ✅ Show popup only if attempted today
-    if (!response.data?.attemptedToday) {
-      setTimeout(() => {
-        setShowStreakModal(true);
-      }, 500);
-    }
+      // ✅ Show popup only if attempted today
+      if (!response.data?.attemptedToday) {
+        setTimeout(() => {
+          setShowStreakModal(true);
+        }, 500);
+      }
     } catch (err) {
-     // ✅ HANDLE NEW USER
-    if (err.response?.status === 404) {
+      // ✅ HANDLE NEW USER
+      if (err.response?.status === 404) {
 
-      console.log("New user - streak not created");
+        console.log("New user - streak not created");
 
-      setStreakDetails({
-        currentStreak: 0,
-        longestStreak: 0,
-        attemptedToday: false
-      });
+        setStreakDetails({
+          currentStreak: 0,
+          longestStreak: 0,
+          attemptedToday: false
+        });
 
-      setTimeout(() => {
-        setShowStreakModal(true);
-      }, 500);
+        setTimeout(() => {
+          setShowStreakModal(true);
+        }, 500);
 
-    } else {
-      console.error("Failed to fetch streak details:", err);
-    }
+      } else {
+        console.error("Failed to fetch streak details:", err);
+      }
 
     } finally {
       if (showLoading) setStreakLoading(false);
@@ -193,22 +193,24 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
 
   const handleRestoreStreak = async () => {
     try {
-      setStreakLoading(true);
       const jwtToken = localStorage.getItem('jwtToken');
       if (!user?.id) return;
       await axios.put(`${apiUrl}/streak/${user.id}/restore`, {}, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
 
-      // Update details after restoring
+      // Update details after restoring silently
+      await fetchStreakDetails(false);
+      
+      // ✅ Snackbar message logic
       const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
-      setStreakDetails(response.data);
-      // ✅ Snackbar message logic
-    if (response.data.monthlyRestoreRemaining > 0) {
+      const data = response.data;
+
+    if (data.monthlyRestoreRemaining > 0) {
       setSnackBarMessage(
-        `Streak restored successfully! You still have ${response.data.monthlyRestoreRemaining} restore ${response.data.monthlyRestoreRemaining === 1 ? "chance" : "chances"} left this month.`
+        `Streak restored successfully! You still have ${data.monthlyRestoreRemaining} restore ${data.monthlyRestoreRemaining === 1 ? "chance" : "chances"} left this month.`
       );
     } else {
       setSnackBarMessage(
@@ -223,8 +225,6 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
     }, 4000);
     } catch (err) {
       console.error("Failed to restore streak:", err);
-    } finally {
-      setStreakLoading(false);
     }
   };
 
@@ -933,32 +933,31 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
                   <div className="portfolio-group-col">
 
                     {/* Recent Streaks */}
-                       {!allLoadingDone ? (
+                    {!allLoadingDone ? (
                       <div className="adb-streak-skeleton-card"></div>
                     ) : (
-                    <div className="recent-streaks-card">
+                      <div className="recent-streaks-card">
                       <div className="streak-left-section">
-
+                        <span className="streak-label">STREAK</span>
                         <div className="streak-text-container">
-                          <span className="streak-label">Streak</span>
                           <span className="streak-number">{streakDetails?.currentStreak || 0}</span>
                         </div>
                       </div>
-                      <div className="streak-right-section">
-                        <div className="streak-days-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span>Recent Streaks</span>
-                          <span onClick={() => navigate('/applicant-my-streaks')} style={{ cursor: 'pointer', fontSize: '13px', color: '#FFFFFF', fontWeight: 'bold' }}>
-                            Explore &gt;
-                          </span>
-                        </div>
-                        <div className="streak-days-row">
-                          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => {
-                            const todayIndex = new Date().getDay();
-                                    const currentStreak = streakDetails?.currentStreak || 0;
+                        <div className="streak-right-section">
+                          <div className="streak-days-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>Recent Streaks</span>
+                            <span onClick={() => navigate('/applicant-my-streaks')} style={{ cursor: 'pointer', fontSize: '13px', color: '#FFFFFF', fontWeight: 'bold' }}>
+                              Explore &gt;
+                            </span>
+                          </div>
+                          <div className="streak-days-row">
+                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => {
+                              const todayIndex = new Date().getDay();
+                              const currentStreak = streakDetails?.currentStreak || 0;
                               const attemptedToday = streakDetails?.attemptedToday || false;
                               const restoreAvailable = streakDetails?.restoreAvailable || false;
                               const yesterdayIndex = todayIndex === 0 ? 6 : todayIndex - 1;
-                                let status = 'upcoming';
+                              let status = 'upcoming';
 
                               if (index === todayIndex) {
                                 status = attemptedToday ? 'taken' : 'upcoming';
@@ -979,50 +978,50 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
                                 status = 'upcoming';
                               }
 
-                            const lostDayIndex = currentStreak === 0 ? todayIndex - 1 : todayIndex - currentStreak;
-                            if (streakDetails?.restoreAvailable && index === lostDayIndex && lostDayIndex >= 0) {
-                              status = 'restore-blink';
-                            }
+                              const lostDayIndex = currentStreak === 0 ? todayIndex - 1 : todayIndex - currentStreak;
+                              if (streakDetails?.restoreAvailable && index === lostDayIndex && lostDayIndex >= 0) {
+                                status = 'restore-blink';
+                              }
 
-                            return (
-                              <div key={dayName} className={`streak-day-block ${status}`}>
-                                <div
-                                  className="streak-status-icon"
-                                  onClick={status === 'restore-blink' ? handleRestoreStreak : undefined}
-                                  title={status === 'restore-blink' ? "Click to Re-store Streak" : ""}
-                                >
-                                  {status === 'taken' && <span className="tick-circle">✓</span>}
-                                  {status === 'missed' && <span className="cross-circle">!</span>}
-                                  {status === 'upcoming' && <span className="pending-circle"></span>}
-                                  {status === 'restore-blink' && <span className="restore-circle" style={{ fontSize: '13px', display: 'flex' }}>↺</span>}
+                              return (
+                                <div key={dayName} className={`streak-day-block ${status}`}>
+                                  <div
+                                    className="streak-status-icon"
+                                    onClick={status === 'restore-blink' ? handleRestoreStreak : undefined}
+                                    title={status === 'restore-blink' ? "Click to Re-store Streak" : ""}
+                                  >
+                                    {status === 'taken' && <span className="tick-circle">✓</span>}
+                                    {status === 'missed' && <span className="cross-circle">!</span>}
+                                    {status === 'upcoming' && <span className="pending-circle"></span>}
+                                    {status === 'restore-blink' && <span className="restore-circle" style={{ fontSize: '13px', display: 'flex' }}>↺</span>}
+                                  </div>
+                                  <div className="streak-day-name">{dayName}</div>
                                 </div>
-                                <div className="streak-day-name">{dayName}</div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
+                          <div className="longest-streak-bar">
+                            <span className="longest-streak-text">Longest Day Streak</span>
+                            <span className="longest-streak-num">{(streakDetails?.longestStreak || 0).toString().padStart(2, '0')}</span>
+                          </div>
                         </div>
-                        <div className="longest-streak-bar">
-                          <span className="longest-streak-text">Longest Day Streak</span>
-                          <span className="longest-streak-num">{(streakDetails?.longestStreak || 0).toString().padStart(2, '0')}</span>
-                        </div>
+                      </div>)}
+                    {showSnackBar && (
+                      <div className="streak-snackbar">
+                        <div className="snackbar-icon">✓</div>
+
+                        <span className="snackbar-text">
+                          {snackBarMessage}
+                        </span>
+
+                        <button
+                          className="snackbar-close"
+                          onClick={() => setShowSnackBar(false)}
+                        >
+                          ✕
+                        </button>
                       </div>
-                    </div>)}
-             {showSnackBar && (
-  <div className="streak-snackbar">
-    <div className="snackbar-icon">✓</div>
-
-    <span className="snackbar-text">
-      {snackBarMessage}
-    </span>
-
-    <button
-      className="snackbar-close"
-      onClick={() => setShowSnackBar(false)}
-    >
-      ✕
-    </button>
-  </div>
-)}       
+                    )}
                     {/*  My Portfolio */}
                     {!allLoadingDone ? (
                       <div className="portfolio">
@@ -1393,7 +1392,7 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
           onExamCompleted={() => {
             const idToUse = applicantId ?? profileData?.applicant?.id;
             if (idToUse) fetchDashboardScore(idToUse); // Refresh score
-            fetchStreakDetails(false); // Silent refresh streak
+            fetchStreakDetails(false); // Refresh streak silently
           }}
         />
       )}
