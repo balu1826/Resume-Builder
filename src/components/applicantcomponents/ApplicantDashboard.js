@@ -71,6 +71,8 @@ const ApplicantDashboard = () => {
   const [goldScore, setGoldScore] = useState(500);
   const [showSnackBar, setShowSnackBar] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
+  const [preRestorationStreak, setPreRestorationStreak] = useState(0);
+  const [isRestoring, setIsRestoring] = useState(false);
   const bronzeWidth = (bronzeScore / goldScore) * 100;
   const silverWidth = ((silverScore - bronzeScore) / goldScore) * 100;
   const goldWidth = ((goldScore - silverScore) / goldScore) * 100;
@@ -155,33 +157,45 @@ const ApplicantDashboard = () => {
       const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
-      setStreakDetails(response.data);
+      
+      const data = response.data;
+      setStreakDetails(data);
+      
+      const { currentStreak, restoreAvailable, previousStreak } = data;
+
+      // ✅ Robust Persistence Logic
+      const savedBackup = localStorage.getItem(`streak_backup_${user.id}`);
+      const backupVal = savedBackup ? parseInt(savedBackup, 10) : 0;
+
+      if (restoreAvailable) {
+        // Source of truth from server if available, otherwise fallback to local storage
+        const effectivePrev = previousStreak || backupVal;
+        if (effectivePrev > 0) {
+          setPreRestorationStreak(effectivePrev);
+          localStorage.setItem(`streak_backup_${user.id}`, effectivePrev.toString());
+        }
+      } else if (currentStreak > 1) {
+        // Only backup high streaks. Protects backup from being overwritten by 1 after test submission.
+        localStorage.setItem(`streak_backup_${user.id}`, currentStreak.toString());
+      } else if (currentStreak <= 1 && backupVal > 0) {
+        // If server says no restore but we have a backup and current is low, 
+        // we keep the preRestorationStreak in state to handle the "Restore After Submission" window.
+        setPreRestorationStreak(backupVal);
+      }
+
       // ✅ Show popup only if attempted today
-      if (!response.data?.attemptedToday) {
+      if (!data?.attemptedToday) {
         setTimeout(() => {
           setShowStreakModal(true);
         }, 500);
       }
     } catch (err) {
-      // ✅ HANDLE NEW USER
       if (err.response?.status === 404) {
-
-        console.log("New user - streak not created");
-
-        setStreakDetails({
-          currentStreak: 0,
-          longestStreak: 0,
-          attemptedToday: false
-        });
-
-        setTimeout(() => {
-          setShowStreakModal(true);
-        }, 500);
-
+        setStreakDetails({ currentStreak: 0, longestStreak: 0, attemptedToday: false });
+        setTimeout(() => setShowStreakModal(true), 500);
       } else {
         console.error("Failed to fetch streak details:", err);
       }
-
     } finally {
       if (showLoading) setStreakLoading(false);
     }
@@ -192,39 +206,69 @@ const ApplicantDashboard = () => {
   }, [user?.id]);
 
   const handleRestoreStreak = async () => {
+    if (isRestoring || !user?.id) return;
     try {
+      setIsRestoring(true);
       const jwtToken = localStorage.getItem('jwtToken');
-      if (!user?.id) return;
-      await axios.put(`${apiUrl}/streak/${user.id}/restore`, {}, {
-        headers: { Authorization: `Bearer ${jwtToken}` }
-      });
-
-      // Update details after restoring silently
-      await fetchStreakDetails(false);
       
-      // ✅ Snackbar message logic
-      const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
-        headers: { Authorization: `Bearer ${jwtToken}` }
-      });
-      const data = response.data;
+      // 1. Perform restore
+      try {
+        await axios.put(`${apiUrl}/streak/${user.id}/restore`, {}, {
+          headers: { Authorization: `Bearer ${jwtToken}` }
+        });
+      } catch (putErr) {
+        if (putErr.response?.status !== 409) throw putErr;
+      }
 
-    if (data.monthlyRestoreRemaining > 0) {
-      setSnackBarMessage(
-        `Streak restored successfully! You still have ${data.monthlyRestoreRemaining} restore ${data.monthlyRestoreRemaining === 1 ? "chance" : "chances"} left this month.`
-      );
-    } else {
-      setSnackBarMessage(
-        "Streak restored successfully! You have used your last restore chance for this month."
-      );
-    }
+      // 2. Fetch updated details
+      let data;
+      try {
+        const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
+          headers: { Authorization: `Bearer ${jwtToken}` }
+        });
+        data = response.data;
+      } catch (getErr) {
+        data = { ...streakDetails, restoreAvailable: false };
+      }
+      
+      // 3. Robust sync: Ensure count reflects today (1) + preRestorationStreak
+      const finalStreak = (data.currentStreak > 1) ? data.currentStreak : (1 + preRestorationStreak);
+      data = { 
+        ...data, 
+        currentStreak: finalStreak, 
+        restoreAvailable: false,
+        attemptedToday: true // Force true since we just test & restore
+      };
+      
+      setStreakDetails(data);
+      setPreRestorationStreak(0); 
+      localStorage.removeItem(`streak_backup_${user.id}`);
 
-    setShowSnackBar(true);
+      // 4. Feedback
+      setSnackBarMessage("Streak restored successfully!");
+      setShowSnackBar(true);
+      setTimeout(() => setShowSnackBar(false), 4000);
 
-    setTimeout(() => {
-      setShowSnackBar(false);
-    }, 4000);
     } catch (err) {
       console.error("Failed to restore streak:", err);
+      if (preRestorationStreak > 0) {
+        const fallbackData = { 
+          ...streakDetails, 
+          currentStreak: 1 + preRestorationStreak, 
+          restoreAvailable: false,
+          attemptedToday: true
+        };
+        setStreakDetails(fallbackData);
+        setPreRestorationStreak(0);
+        localStorage.removeItem(`streak_backup_${user.id}`);
+        setSnackBarMessage("Streak restored successfully!");
+      } else {
+        setSnackBarMessage("Failed to restore streak. Please try again.");
+      }
+      setShowSnackBar(true);
+      setTimeout(() => setShowSnackBar(false), 4000);
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -956,44 +1000,74 @@ const ApplicantDashboard = () => {
                               const currentStreak = streakDetails?.currentStreak || 0;
                               const attemptedToday = streakDetails?.attemptedToday || false;
                               const restoreAvailable = streakDetails?.restoreAvailable || false;
-                              const yesterdayIndex = todayIndex === 0 ? 6 : todayIndex - 1;
+                              
+                              // Sticky restoration flag: true if server says yes, OR if we have backup and count is low (post-test)
+                              const isRestorable = restoreAvailable || (currentStreak === 1 && preRestorationStreak > 0);
+
+                              // 1. Calculate the day that actually needs restoration (the missed day)
+                              const lostDayIndex = (currentStreak === 0) 
+                                ? (todayIndex - 1 + 7) % 7 
+                                : (todayIndex - currentStreak + 7) % 7;
+
                               let status = 'upcoming';
 
                               if (index === todayIndex) {
                                 status = attemptedToday ? 'taken' : 'upcoming';
-                              } else if (index < todayIndex) {
-                                if (restoreAvailable && index === yesterdayIndex) {
-                                  status = 'restore-blink';
-                                } else {
-                                  // Determine streak range
-                                  const streakEnd = attemptedToday ? todayIndex : todayIndex - 1;
-                                  const streakStart = streakEnd - currentStreak + 1;
-                                  if (index >= streakStart && index <= streakEnd && currentStreak > 0) {
-                                    status = 'taken';
-                                  } else {
-                                    status = 'missed';
+                              } else {
+                                const streakEnd = attemptedToday ? todayIndex : (todayIndex - 1 + 7) % 7;
+                                let isInsideStreak = false;
+                                
+                                // Robust distance-based logic for current streak
+                                if (currentStreak > 0) {
+                                  const diff = (streakEnd - index + 7) % 7;
+                                  if (diff < currentStreak) {
+                                    isInsideStreak = true;
                                   }
                                 }
-                              } else {
-                                status = 'upcoming';
+
+                                // Robust distance-based logic for pre-restoration streak
+                                if (!isInsideStreak && isRestorable && preRestorationStreak > 0) {
+                                  const diffFromLost = (lostDayIndex - index + 7) % 7;
+                                  // conceptually, if diff is 1 to preRestorationStreak, it's green
+                                  if (diffFromLost >= 1 && diffFromLost <= preRestorationStreak) {
+                                    isInsideStreak = true;
+                                  }
+                                }
+
+                                if (isInsideStreak) {
+                                  status = 'taken';
+                                } else {
+                                  if (index < todayIndex) {
+                                    status = 'missed';
+                                  } else {
+                                    status = 'upcoming';
+                                  }
+                                }
                               }
 
-                              const lostDayIndex = currentStreak === 0 ? todayIndex - 1 : todayIndex - currentStreak;
-                              if (streakDetails?.restoreAvailable && index === lostDayIndex && lostDayIndex >= 0) {
+                              // 2. OVERRIDE with restore-blink if restorable
+                              if (isRestorable && index === lostDayIndex) {
                                 status = 'restore-blink';
                               }
 
                               return (
                                 <div key={dayName} className={`streak-day-block ${status}`}>
                                   <div
-                                    className="streak-status-icon"
+                                    className={`streak-status-icon ${status === 'restore-blink' && isRestoring ? 'restoring' : ''}`}
                                     onClick={status === 'restore-blink' ? handleRestoreStreak : undefined}
-                                    title={status === 'restore-blink' ? "Click to Re-store Streak" : ""}
+                                    title={status === 'restore-blink' ? "Click to Restore Streak" : ""}
+                                    style={{ position: 'relative' }}
                                   >
                                     {status === 'taken' && <span className="tick-circle">✓</span>}
                                     {status === 'missed' && <span className="cross-circle">!</span>}
                                     {status === 'upcoming' && <span className="pending-circle"></span>}
-                                    {status === 'restore-blink' && <span className="restore-circle" style={{ fontSize: '13px', display: 'flex' }}>↺</span>}
+                                    {status === 'restore-blink' && (
+                                      <span className="restore-circle" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {isRestoring ? (
+                                          <div className="restore-spinner-small"></div>
+                                        ) : '↺'}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="streak-day-name">{dayName}</div>
                                 </div>
