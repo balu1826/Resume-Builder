@@ -164,7 +164,25 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
         }, 500);
       }
       } catch (err) {
+       // ✅ HANDLE NEW USER
+      if (err.response?.status === 404) {
+
+        console.log("New user - streak not created");
+
+        setStreakDetails({
+          currentStreak: 0,
+          longestStreak: 0,
+          attemptedToday: false
+        });
+
+        setTimeout(() => {
+          setShowStreakModal(true);
+        }, 500);
+
+      } else {
         console.error("Failed to fetch streak details:", err);
+      }
+
       } finally {
         setStreakLoading(false);
       }
