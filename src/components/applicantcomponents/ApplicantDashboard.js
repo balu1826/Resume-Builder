@@ -147,46 +147,47 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
     fetchCard();
   }, [applicantId]);
 
+  const fetchStreakDetails = async (showLoading = true) => {
+    try {
+      if (showLoading) setStreakLoading(true);
+      const jwtToken = localStorage.getItem('jwtToken');
+      if (!user?.id) return;
+      const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
+        headers: { Authorization: `Bearer ${jwtToken}` }
+      });
+      setStreakDetails(response.data);
+       // ✅ Show popup only if attempted today
+    if (!response.data?.attemptedToday) {
+      setTimeout(() => {
+        setShowStreakModal(true);
+      }, 500);
+    }
+    } catch (err) {
+     // ✅ HANDLE NEW USER
+    if (err.response?.status === 404) {
+
+      console.log("New user - streak not created");
+
+      setStreakDetails({
+        currentStreak: 0,
+        longestStreak: 0,
+        attemptedToday: false
+      });
+
+      setTimeout(() => {
+        setShowStreakModal(true);
+      }, 500);
+
+    } else {
+      console.error("Failed to fetch streak details:", err);
+    }
+
+    } finally {
+      if (showLoading) setStreakLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchStreakDetails = async () => {
-      try {
-        setStreakLoading(true);
-        const jwtToken = localStorage.getItem('jwtToken');
-        if (!user?.id) return;
-        const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
-          headers: { Authorization: `Bearer ${jwtToken}` }
-        });
-        setStreakDetails(response.data);
-         // ✅ Show popup only if attempted today
-      if (!response.data?.attemptedToday) {
-        setTimeout(() => {
-          setShowStreakModal(true);
-        }, 500);
-      }
-      } catch (err) {
-       // ✅ HANDLE NEW USER
-      if (err.response?.status === 404) {
-
-        console.log("New user - streak not created");
-
-        setStreakDetails({
-          currentStreak: 0,
-          longestStreak: 0,
-          attemptedToday: false
-        });
-
-        setTimeout(() => {
-          setShowStreakModal(true);
-        }, 500);
-
-      } else {
-        console.error("Failed to fetch streak details:", err);
-      }
-
-      } finally {
-        setStreakLoading(false);
-      }
-    };
     fetchStreakDetails();
   }, [user?.id]);
 
@@ -1392,6 +1393,7 @@ const [snackBarMessage, setSnackBarMessage] = useState("");
           onExamCompleted={() => {
             const idToUse = applicantId ?? profileData?.applicant?.id;
             if (idToUse) fetchDashboardScore(idToUse); // Refresh score
+            fetchStreakDetails(false); // Silent refresh streak
           }}
         />
       )}

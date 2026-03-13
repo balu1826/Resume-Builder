@@ -333,9 +333,6 @@ const StreakExamModal = ({ userId, onClose, onExamCompleted }) => {
               <button
                 className="streak-submit-btn"
                 onClick={() => {
-                  if (onExamCompleted) {
-                    onExamCompleted();
-                  }
                   onClose();
                 }}
               >
