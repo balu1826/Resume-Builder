@@ -60,6 +60,9 @@ const ApplicantDashboard = () => {
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [askNewtonLoading, setAskNewtonLoading] = useState(true);
   const [badgeLoading, setBadgeLoading] = useState(true);
+  const [sessionSkipped, setSessionSkipped] = useState(() => {
+    return sessionStorage.getItem("streak_skipped_today") === "true";
+  });
   const maxVideos = window.innerWidth > 1700 ? 6 : 4;
   const [showTour, setShowTour] = useState(false);
   const didInitRef = useRef(false);
@@ -157,10 +160,10 @@ const ApplicantDashboard = () => {
       const response = await axios.get(`${apiUrl}/streak/${user.id}/getStreakDetails`, {
         headers: { Authorization: `Bearer ${jwtToken}` }
       });
-      
+
       const data = response.data;
       setStreakDetails(data);
-      
+
       const { currentStreak, restoreAvailable, previousStreak } = data;
 
       // ✅ Robust Persistence Logic
@@ -183,8 +186,8 @@ const ApplicantDashboard = () => {
         setPreRestorationStreak(backupVal);
       }
 
-      // ✅ Show popup only if attempted today
-      if (!data?.attemptedToday) {
+      // ✅ Show popup only if not attempted today and not skipped in this session
+      if (!data?.attemptedToday && !sessionSkipped) {
         setTimeout(() => {
           setShowStreakModal(true);
         }, 500);
@@ -210,7 +213,7 @@ const ApplicantDashboard = () => {
     try {
       setIsRestoring(true);
       const jwtToken = localStorage.getItem('jwtToken');
-      
+
       // 1. Perform restore
       try {
         await axios.put(`${apiUrl}/streak/${user.id}/restore`, {}, {
@@ -230,18 +233,18 @@ const ApplicantDashboard = () => {
       } catch (getErr) {
         data = { ...streakDetails, restoreAvailable: false };
       }
-      
+
       // 3. Robust sync: Ensure count reflects today (1) + preRestorationStreak
       const finalStreak = (data.currentStreak > 1) ? data.currentStreak : (1 + preRestorationStreak);
-      data = { 
-        ...data, 
-        currentStreak: finalStreak, 
+      data = {
+        ...data,
+        currentStreak: finalStreak,
         restoreAvailable: false,
         attemptedToday: true // Force true since we just test & restore
       };
-      
+
       setStreakDetails(data);
-      setPreRestorationStreak(0); 
+      setPreRestorationStreak(0);
       localStorage.removeItem(`streak_backup_${user.id}`);
 
       // 4. Feedback
@@ -252,9 +255,9 @@ const ApplicantDashboard = () => {
     } catch (err) {
       console.error("Failed to restore streak:", err);
       if (preRestorationStreak > 0) {
-        const fallbackData = { 
-          ...streakDetails, 
-          currentStreak: 1 + preRestorationStreak, 
+        const fallbackData = {
+          ...streakDetails,
+          currentStreak: 1 + preRestorationStreak,
           restoreAvailable: false,
           attemptedToday: true
         };
@@ -981,12 +984,12 @@ const ApplicantDashboard = () => {
                       <div className="adb-streak-skeleton-card"></div>
                     ) : (
                       <div className="recent-streaks-card">
-                      <div className="streak-left-section">
-                        <span className="streak-label">STREAK</span>
-                        <div className="streak-text-container">
-                          <span className="streak-number">{streakDetails?.currentStreak || 0}</span>
+                        <div className="streak-left-section">
+                          <span className="streak-label">STREAK</span>
+                          <div className="streak-text-container">
+                            <span className="streak-number">{streakDetails?.currentStreak || 0}</span>
+                          </div>
                         </div>
-                      </div>
                         <div className="streak-right-section">
                           <div className="streak-days-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span>Recent Streaks</span>
@@ -1000,13 +1003,13 @@ const ApplicantDashboard = () => {
                               const currentStreak = streakDetails?.currentStreak || 0;
                               const attemptedToday = streakDetails?.attemptedToday || false;
                               const restoreAvailable = streakDetails?.restoreAvailable || false;
-                              
+
                               // Sticky restoration flag: true if server says yes, OR if we have backup and count is low (post-test)
                               const isRestorable = restoreAvailable || (currentStreak === 1 && preRestorationStreak > 0);
 
                               // 1. Calculate the day that actually needs restoration (the missed day)
-                              const lostDayIndex = (currentStreak === 0) 
-                                ? (todayIndex - 1 + 7) % 7 
+                              const lostDayIndex = (currentStreak === 0)
+                                ? (todayIndex - 1 + 7) % 7
                                 : (todayIndex - currentStreak + 7) % 7;
 
                               let status = 'upcoming';
@@ -1016,7 +1019,7 @@ const ApplicantDashboard = () => {
                               } else {
                                 const streakEnd = attemptedToday ? todayIndex : (todayIndex - 1 + 7) % 7;
                                 let isInsideStreak = false;
-                                
+
                                 // Robust distance-based logic for current streak
                                 if (currentStreak > 0) {
                                   const diff = (streakEnd - index + 7) % 7;
@@ -1078,6 +1081,22 @@ const ApplicantDashboard = () => {
                             <span className="longest-streak-text">Longest Day Streak</span>
                             <span className="longest-streak-num">{(streakDetails?.longestStreak || 0).toString().padStart(2, '0')}</span>
                           </div>
+                          {!streakDetails?.attemptedToday && sessionSkipped && (
+                            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                              <span 
+                                onClick={() => setShowStreakModal(true)} 
+                                style={{ 
+                                  cursor: 'pointer', 
+                                  fontSize: '12px', 
+                                  color: '#FFFFFF', 
+                                  fontWeight: 'bold', 
+                                  textDecoration: 'underline' 
+                                }}
+                              >
+                                Take Daily Test
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>)}
                     {showSnackBar && (
@@ -1461,12 +1480,18 @@ const ApplicantDashboard = () => {
           onClose={() => {
             const currentDay = new Date().toISOString().split('T')[0];
             safeSet(`streak_modal_shown_${currentDay}_${user.id}`, "true");
+            // Set session skipped flag
+            sessionStorage.setItem("streak_skipped_today", "true");
+            setSessionSkipped(true);
             setShowStreakModal(false);
           }}
           onExamCompleted={() => {
             const idToUse = applicantId ?? profileData?.applicant?.id;
             if (idToUse) fetchDashboardScore(idToUse); // Refresh score
             fetchStreakDetails(false); // Refresh streak silently
+            // If completed, we can clear session skipped or just rely on attemptedToday
+            sessionStorage.setItem("streak_skipped_today", "false");
+            setSessionSkipped(false);
           }}
         />
       )}
