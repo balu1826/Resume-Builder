@@ -76,6 +76,11 @@ const ApplicantDashboard = () => {
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const [preRestorationStreak, setPreRestorationStreak] = useState(0);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [wasRestoreAvailable, setWasRestoreAvailable] = useState(false);
+  // Shows a restore-first prompt before the test popup appears
+  const [showRestorePrompt, setShowRestorePrompt] = useState(false);
+  // Attempted dates from getAttemptedDates API – Set of "YYYY-MM-DD" strings
+  const [attemptedDates, setAttemptedDates] = useState(new Set());
   const bronzeWidth = (bronzeScore / goldScore) * 100;
   const silverWidth = ((silverScore - bronzeScore) / goldScore) * 100;
   const goldWidth = ((goldScore - silverScore) / goldScore) * 100;
@@ -166,6 +171,11 @@ const ApplicantDashboard = () => {
 
       const { currentStreak, restoreAvailable, previousStreak } = data;
 
+      // Capture the restore flag BEFORE it can be wiped by a subsequent test submission
+      if (restoreAvailable) {
+        setWasRestoreAvailable(true);
+      }
+
       // ✅ Robust Persistence Logic
       const savedBackup = localStorage.getItem(`streak_backup_${user.id}`);
       const backupVal = savedBackup ? parseInt(savedBackup, 10) : 0;
@@ -189,7 +199,12 @@ const ApplicantDashboard = () => {
       // ✅ Show popup only if not attempted today and not skipped in this session
       if (!data?.attemptedToday && !sessionSkipped) {
         setTimeout(() => {
-          setShowStreakModal(true);
+          if (restoreAvailable) {
+            // Show restore-first prompt instead of jumping straight to test
+            setShowRestorePrompt(true);
+          } else {
+            setShowStreakModal(true);
+          }
         }, 500);
       }
     } catch (err) {
@@ -206,6 +221,36 @@ const ApplicantDashboard = () => {
 
   useEffect(() => {
     fetchStreakDetails();
+  }, [user?.id]);
+
+  // Fetch attempted dates from new API
+  useEffect(() => {
+    const fetchAttemptedDates = async () => {
+      if (!user?.id) return;
+      try {
+        const jwtToken = localStorage.getItem('jwtToken');
+        const response = await axios.get(
+          `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+          { headers: { Authorization: `Bearer ${jwtToken}` } }
+        );
+        if (Array.isArray(response.data)) {
+          const dateSet = new Set(
+            response.data.map(([year, month, day]) => {
+              const m = String(month).padStart(2, '0');
+              const d = String(day).padStart(2, '0');
+              return `${year}-${m}-${d}`;
+            })
+          );
+          setAttemptedDates(dateSet);
+        }
+      } catch (err) {
+        // 404 = user hasn't started yet – empty calendar, not an error
+        if (err?.response?.status !== 404) {
+          console.error('Failed to fetch attempted dates:', err);
+        }
+      }
+    };
+    fetchAttemptedDates();
   }, [user?.id]);
 
   const handleRestoreStreak = async () => {
@@ -239,18 +284,34 @@ const ApplicantDashboard = () => {
       data = {
         ...data,
         currentStreak: finalStreak,
-        restoreAvailable: false,
-        attemptedToday: true // Force true since we just test & restore
+        restoreAvailable: false
+        // Removed override that sets attemptedToday to true
       };
 
       setStreakDetails(data);
       setPreRestorationStreak(0);
       localStorage.removeItem(`streak_backup_${user.id}`);
 
+      // Re-fetch attempted dates so the weekly row refreshes
+      try {
+        const datesRes = await axios.get(
+          `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+          { headers: { Authorization: `Bearer ${jwtToken}` } }
+        );
+        if (Array.isArray(datesRes.data)) {
+          setAttemptedDates(new Set(
+            datesRes.data.map(([y, m, d]) =>
+              `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+            )
+          ));
+        }
+      } catch (_) { /* ignore */ }
+
       // 4. Feedback
       setSnackBarMessage("Streak restored successfully!");
       setShowSnackBar(true);
       setTimeout(() => setShowSnackBar(false), 4000);
+      setShowStreakModal(true); // Chained setShowStreakModal(true)
 
     } catch (err) {
       console.error("Failed to restore streak:", err);
@@ -258,8 +319,7 @@ const ApplicantDashboard = () => {
         const fallbackData = {
           ...streakDetails,
           currentStreak: 1 + preRestorationStreak,
-          restoreAvailable: false,
-          attemptedToday: true
+          restoreAvailable: false
         };
         setStreakDetails(fallbackData);
         setPreRestorationStreak(0);
@@ -998,84 +1058,103 @@ const ApplicantDashboard = () => {
                             </span>
                           </div>
                           <div className="streak-days-row">
-                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => {
-                              const todayIndex = new Date().getDay();
+                            {(() => {
+                              // ── Build last-7-days window: day[0] = 6 days ago, day[6] = today ──
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              const todayDow = today.getDay(); // 0=Sun … 6=Sat
+                              const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+                              // Helper: date → "YYYY-MM-DD"
+                              const toKey = (d) => {
+                                const y = d.getFullYear();
+                                const m = String(d.getMonth() + 1).padStart(2, '0');
+                                const dy = String(d.getDate()).padStart(2, '0');
+                                return `${y}-${m}-${dy}`;
+                              };
+
+                              const todayKey = toKey(today);
+                              const yestDate = new Date(today); yestDate.setDate(today.getDate() - 1);
+                              const yestKey = toKey(yestDate);
+
+                              // ── Restore: trust ONLY the server flag from getStreakDetails ──
                               const currentStreak = streakDetails?.currentStreak || 0;
-                              const attemptedToday = streakDetails?.attemptedToday || false;
-                              const restoreAvailable = streakDetails?.restoreAvailable || false;
+                              const isRestorable = streakDetails?.restoreAvailable ||
+                                (currentStreak === 1 && preRestorationStreak > 0);
 
-                              // Sticky restoration flag: true if server says yes, OR if we have backup and count is low (post-test)
-                              const isRestorable = restoreAvailable || (currentStreak === 1 && preRestorationStreak > 0);
+                              // ── Friday rule: if today IS Friday and Friday was attempted,
+                              //    Mon-Thu of THIS week are "not-applicable" (grey, no mark) ──
+                              const isFriday = todayDow === 5;
+                              const fridayAttempted = attemptedDates.has(todayKey) && isFriday;
 
-                              // 1. Calculate the day that actually needs restoration (the missed day)
-                              const lostDayIndex = (currentStreak === 0)
-                                ? (todayIndex - 1 + 7) % 7
-                                : (todayIndex - currentStreak + 7) % 7;
-
-                              let status = 'upcoming';
-
-                              if (index === todayIndex) {
-                                status = attemptedToday ? 'taken' : 'upcoming';
-                              } else {
-                                const streakEnd = attemptedToday ? todayIndex : (todayIndex - 1 + 7) % 7;
-                                let isInsideStreak = false;
-
-                                // Robust distance-based logic for current streak
-                                if (currentStreak > 0) {
-                                  const diff = (streakEnd - index + 7) % 7;
-                                  if (diff < currentStreak) {
-                                    isInsideStreak = true;
-                                  }
+                              // Days that are "not-applicable" when Friday is done
+                              const naKeys = new Set();
+                              if (fridayAttempted) {
+                                // Mon(1)–Thu(4) of the current week
+                                for (let dow = 1; dow <= 4; dow++) {
+                                  const d = new Date(today);
+                                  d.setDate(today.getDate() - (todayDow - dow));
+                                  naKeys.add(toKey(d));
                                 }
+                              }
 
-                                // Robust distance-based logic for pre-restoration streak
-                                if (!isInsideStreak && isRestorable && preRestorationStreak > 0) {
-                                  const diffFromLost = (lostDayIndex - index + 7) % 7;
-                                  // conceptually, if diff is 1 to preRestorationStreak, it's green
-                                  if (diffFromLost >= 1 && diffFromLost <= preRestorationStreak) {
-                                    isInsideStreak = true;
-                                  }
-                                }
+                              // ── Build the 7 day objects ──
+                              return Array.from({ length: 7 }, (_, i) => {
+                                const offset = i - 6; // -6 … 0
+                                const cellDate = new Date(today);
+                                cellDate.setDate(today.getDate() + offset);
+                                const cellKey = toKey(cellDate);
+                                const cellDow = cellDate.getDay();
+                                const isToday = offset === 0;
 
-                                if (isInsideStreak) {
+                                let status;
+
+                                if (isToday) {
+                                  status = attemptedDates.has(cellKey) ? 'taken' : 'upcoming';
+                                } else if (naKeys.has(cellKey)) {
+                                  status = 'not-applicable'; // neutral grey
+                                } else if (attemptedDates.has(cellKey)) {
                                   status = 'taken';
                                 } else {
-                                  if (index < todayIndex) {
+                                  // Past day: missed only after the first ever attempt
+                                  const hasAnyAttempt = attemptedDates.size > 0;
+                                  const firstAttemptTs = hasAnyAttempt
+                                    ? Math.min(...[...attemptedDates].map(s => new Date(s).getTime()))
+                                    : null;
+                                  if (hasAnyAttempt && cellDate.getTime() >= firstAttemptTs) {
                                     status = 'missed';
                                   } else {
-                                    status = 'upcoming';
+                                    status = 'upcoming'; // before streak ever started
                                   }
                                 }
-                              }
 
-                              // 2. OVERRIDE with restore-blink if restorable
-                              if (isRestorable && index === lostDayIndex) {
-                                status = 'restore-blink';
-                              }
+                                if (isRestorable && cellKey === yestKey) {
+                                  status = 'restore-icon'; // static icon, no blink
+                                }
 
-                              return (
-                                <div key={dayName} className={`streak-day-block ${status}`}>
-                                  <div
-                                    className={`streak-status-icon ${status === 'restore-blink' && isRestoring ? 'restoring' : ''}`}
-                                    onClick={status === 'restore-blink' ? handleRestoreStreak : undefined}
-                                    title={status === 'restore-blink' ? "Click to Restore Streak" : ""}
-                                    style={{ position: 'relative' }}
-                                  >
-                                    {status === 'taken' && <span className="tick-circle">✓</span>}
-                                    {status === 'missed' && <span className="cross-circle">!</span>}
-                                    {status === 'upcoming' && <span className="pending-circle"></span>}
-                                    {status === 'restore-blink' && (
-                                      <span className="restore-circle" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {isRestoring ? (
-                                          <div className="restore-spinner-small"></div>
-                                        ) : '↺'}
-                                      </span>
-                                    )}
+                                return (
+                                  <div key={cellKey} className={`streak-day-block ${status}`}>
+                                    <div
+                                      className={`streak-status-icon ${status === 'restore-icon' && isRestoring ? 'restoring' : ''}`}
+                                      onClick={status === 'restore-icon' ? handleRestoreStreak : undefined}
+                                      title={status === 'restore-icon' ? 'Click to Restore Streak' : ''}
+                                      style={{ position: 'relative', cursor: status === 'restore-icon' ? 'pointer' : 'default' }}
+                                    >
+                                      {status === 'taken' && <span className="tick-circle">✓</span>}
+                                      {status === 'missed' && <span className="cross-circle">!</span>}
+                                      {status === 'upcoming' && <span className="pending-circle"></span>}
+                                      {status === 'not-applicable' && <span className="pending-circle" style={{ opacity: 0.3 }}></span>}
+                                      {status === 'restore-icon' && (
+                                        <span className="restore-circle" style={{ fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                          {isRestoring ? <div className="restore-spinner-small"></div> : '↺'}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="streak-day-name">{DAY_NAMES[cellDow]}</div>
                                   </div>
-                                  <div className="streak-day-name">{dayName}</div>
-                                </div>
-                              );
-                            })}
+                                );
+                              });
+                            })()}
                           </div>
                           <div className="longest-streak-bar">
                             <span className="longest-streak-text">Longest Day Streak</span>
@@ -1083,14 +1162,14 @@ const ApplicantDashboard = () => {
                           </div>
                           {!streakDetails?.attemptedToday && sessionSkipped && (
                             <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                              <span 
-                                onClick={() => setShowStreakModal(true)} 
-                                style={{ 
-                                  cursor: 'pointer', 
-                                  fontSize: '12px', 
-                                  color: '#FFFFFF', 
-                                  fontWeight: 'bold', 
-                                  textDecoration: 'underline' 
+                              <span
+                                onClick={() => setShowStreakModal(true)}
+                                style={{
+                                  cursor: 'pointer',
+                                  fontSize: '12px',
+                                  color: '#FFFFFF',
+                                  fontWeight: 'bold',
+                                  textDecoration: 'underline'
                                 }}
                               >
                                 Take Daily Test
@@ -1474,6 +1553,49 @@ const ApplicantDashboard = () => {
           steps={tourSteps}
         />
       )}
+      {/* Restore-first prompt: shown when restoreAvailable=true before test modal */}
+      {showRestorePrompt && (
+        <div className="streak-modal-overlay">
+          <div className="streak-modal-content" style={{ maxWidth: '400px' }}>
+            <div className="streak-modal-header">
+              <div className="streak-header-titles">
+                <h2>Restore Your Streak</h2>
+              </div>
+            </div>
+            <div className="streak-question-body" style={{ textAlign: 'center', padding: '32px 20px' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>↺</div>
+              <p style={{ fontSize: '15px', color: '#444', marginBottom: '8px' }}>
+                You have a streak to restore from yesterday!
+              </p>
+              <p style={{ fontSize: '13px', color: '#888' }}>
+                Restore now to keep your streak, or take today's test first.
+              </p>
+            </div>
+            <div className="streak-modal-footer" style={{ justifyContent: 'center', gap: '12px' }}>
+              <button
+                className="streak-nav-btn"
+                onClick={() => {
+                  setShowRestorePrompt(false);
+                  setShowStreakModal(true); // proceed to test
+                }}
+              >
+                Take Test First
+              </button>
+              <button
+                className="streak-submit-btn"
+                disabled={isRestoring}
+                onClick={async () => {
+                  await handleRestoreStreak();
+                  setShowRestorePrompt(false);
+                  setShowStreakModal(true); // Open test popup immediately after restore
+                }}
+              >
+                {isRestoring ? 'Restoring...' : 'Restore Streak'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showStreakModal && (
         <StreakExamModal
           userId={user.id}
@@ -1485,11 +1607,26 @@ const ApplicantDashboard = () => {
             setSessionSkipped(true);
             setShowStreakModal(false);
           }}
-          onExamCompleted={() => {
+          onExamCompleted={async () => {
             const idToUse = applicantId ?? profileData?.applicant?.id;
             if (idToUse) fetchDashboardScore(idToUse); // Refresh score
             fetchStreakDetails(false); // Refresh streak silently
-            // If completed, we can clear session skipped or just rely on attemptedToday
+            // Re-fetch attempted dates so today's cell turns green immediately
+            try {
+              const jwtToken = localStorage.getItem('jwtToken');
+              const res = await axios.get(
+                `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+                { headers: { Authorization: `Bearer ${jwtToken}` } }
+              );
+              if (Array.isArray(res.data)) {
+                setAttemptedDates(new Set(
+                  res.data.map(([y, m, d]) =>
+                    `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                  )
+                ));
+              }
+            } catch (_) { /* 404 = first attempt, ignore */ }
+            // Clear session skipped
             sessionStorage.setItem("streak_skipped_today", "false");
             setSessionSkipped(false);
           }}
