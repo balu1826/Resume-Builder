@@ -10,7 +10,9 @@ const ApplicantMyStreaks = () => {
     const navigate = useNavigate();
     const [streakDetails, setStreakDetails] = useState(null);
     const [loading, setLoading] = useState(true);
-      // Answer Reveals State
+    // Attempted dates from new API – stored as a Set of "YYYY-MM-DD" strings
+    const [attemptedDates, setAttemptedDates] = useState(new Set());
+    // Answer Reveals State
     const todayStr = new Date().toISOString().split("T")[0];
     const [selectedDate, setSelectedDate] = useState(todayStr);
     const [revealedAnswers, setRevealedAnswers] = useState(null);
@@ -36,6 +38,39 @@ const ApplicantMyStreaks = () => {
             }
         };
         fetchStreakDetails();
+    }, [user?.id]);
+
+    // Fetch attempted dates from the new API
+    useEffect(() => {
+        const fetchAttemptedDates = async () => {
+            if (!user?.id) return;
+            try {
+                const jwtToken = localStorage.getItem("jwtToken");
+                const response = await axios.get(
+                    `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+                    { headers: { Authorization: `Bearer ${jwtToken}` } }
+                );
+                // Response is an array of [year, month, day] arrays
+                if (Array.isArray(response.data)) {
+                    const dateSet = new Set(
+                        response.data.map(([year, month, day]) => {
+                            const m = String(month).padStart(2, "0");
+                            const d = String(day).padStart(2, "0");
+                            return `${year}-${m}-${d}`;
+                        })
+                    );
+                    setAttemptedDates(dateSet);
+                }
+            } catch (err) {
+                // 404 means the applicant hasn't started any streak yet – show empty calendar
+                if (err?.response?.status === 404) {
+                    setAttemptedDates(new Set());
+                } else {
+                    console.error("Failed to fetch attempted dates:", err);
+                }
+            }
+        };
+        fetchAttemptedDates();
     }, [user?.id]);
 
     const goBack = () => {
@@ -129,34 +164,36 @@ const ApplicantMyStreaks = () => {
     const startYear = streakStart.getFullYear();
     const displayYear = startYear < currentYear ? `${startYear}/${currentYear}` : currentYear;
 
+    // Earliest attempted date – lower bound for un-submission colouring
+    const firstAttemptedDate = attemptedDates.size > 0
+        ? new Date(
+            Math.min(
+                ...[...attemptedDates].map((s) => new Date(s).getTime())
+            )
+        )
+        : null;
+
     const getDayStatus = (date) => {
         if (date > today) return "upcoming";
 
-        // Within current streak
-        const streakStart = new Date(today);
-        streakStart.setDate(today.getDate() - currentStreak + 1);
+        // Check if this date was actually attempted (from API)
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        const dateKey = `${yyyy}-${mm}-${dd}`;
 
-        // Adjust logic to correctly mark "taken" vs "missed" vs current day "to-submission"
-        if (date >= streakStart && date <= today && currentStreak > 0) {
-            return "submission";
-        }
+        if (attemptedDates.has(dateKey)) return "submission";
 
-        // Let's just mock past 5 days missing prior to streak
-        const missLimit = new Date(streakStart);
-        missLimit.setDate(streakStart.getDate() - 5);
+        // Today but not attempted yet
+        if (date.getTime() === today.getTime()) return "yet-to-submission";
 
-        if (date >= missLimit && date < streakStart) {
-            return "un-submission";
-        }
+        // Between first attempted date and today → un-submission (red gap)
+        if (firstAttemptedDate && date >= firstAttemptedDate) return "un-submission";
 
-        if (date.getTime() === today.getTime() && currentStreak === 0) {
-            return "yet-to-submission";
-        }
-
-        // Default 
+        // Before the streak ever started → no activity
         return "default";
     };
- if (loading) {
+    if (loading) {
         return (
             <div className="border-style">
                 <div className="dashboard__content my-streaks-page">
@@ -299,7 +336,7 @@ const ApplicantMyStreaks = () => {
                                 {revealedAnswers.map((item, index) => (
                                     <div key={index} className="revealed-question-block">
                                         <h4 className="r-question-text">{index + 1}. {item.questionText || item.question}</h4>
-                   
+
                                         <div className="r-options-container">
                                             {item.options && Object.entries(item.options).some(([key, val]) => item.correctAnswer === key || item.correctAnswer === val) ? (
                                                 Object.entries(item.options).map(([key, val]) => {
