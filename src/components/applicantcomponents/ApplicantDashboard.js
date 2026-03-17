@@ -1111,21 +1111,10 @@ const ApplicantDashboard = () => {
 
                                 if (isToday) {
                                   status = attemptedDates.has(cellKey) ? 'taken' : 'upcoming';
-                                } else if (naKeys.has(cellKey)) {
-                                  status = 'not-applicable'; // neutral grey
-                                } else if (attemptedDates.has(cellKey)) {
-                                  status = 'taken';
                                 } else {
-                                  // Past day: missed only after the first ever attempt
-                                  const hasAnyAttempt = attemptedDates.size > 0;
-                                  const firstAttemptTs = hasAnyAttempt
-                                    ? Math.min(...[...attemptedDates].map(s => new Date(s).getTime()))
-                                    : null;
-                                  if (hasAnyAttempt && cellDate.getTime() >= firstAttemptTs) {
-                                    status = 'missed';
-                                  } else {
-                                    status = 'upcoming'; // before streak ever started
-                                  }
+                                  // For ALL past days (offset < 0):
+                                  // They are either attempted ('taken') or not attempted ('missed')
+                                  status = attemptedDates.has(cellKey) ? 'taken' : 'missed';
                                 }
 
                                 if (isRestorable && cellKey === yestKey) {
@@ -1141,7 +1130,7 @@ const ApplicantDashboard = () => {
                                       style={{ position: 'relative', cursor: status === 'restore-icon' ? 'pointer' : 'default' }}
                                     >
                                       {status === 'taken' && <span className="tick-circle">✓</span>}
-                                      {status === 'missed' && <span className="cross-circle">!</span>}
+                                      {status === 'missed' && <span className="missed-text-label">Not Attempted</span>}
                                       {status === 'upcoming' && <span className="pending-circle"></span>}
                                       {status === 'not-applicable' && <span className="pending-circle" style={{ opacity: 0.3 }}></span>}
                                       {status === 'restore-icon' && (
