@@ -1122,7 +1122,7 @@ const ApplicantDashboard = () => {
                                 }
 
                                 return (
-                                  <div key={cellKey} className={`streak-day-block ${status}`}>
+                                  <div key={cellKey} className={`streak-day-block ${status} ${isToday ? 'today-cell' : ''}`}>
                                     <div
                                       className={`streak-status-icon ${status === 'restore-icon' && isRestoring ? 'restoring' : ''}`}
                                       onClick={status === 'restore-icon' ? handleRestoreStreak : undefined}
