@@ -47,7 +47,7 @@ const ApplicantMyStreaks = () => {
             try {
                 const jwtToken = localStorage.getItem("jwtToken");
                 const response = await axios.get(
-                    `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+                    `${apiUrl}/streak/${user.id}/getAttemptedDates`,
                     { headers: { Authorization: `Bearer ${jwtToken}` } }
                 );
                 // Response is an array of [year, month, day] arrays

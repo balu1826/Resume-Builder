@@ -230,7 +230,7 @@ const ApplicantDashboard = () => {
       try {
         const jwtToken = localStorage.getItem('jwtToken');
         const response = await axios.get(
-          `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+          `${apiUrl}/streak/${user.id}/getAttemptedDates`,
           { headers: { Authorization: `Bearer ${jwtToken}` } }
         );
         if (Array.isArray(response.data)) {
@@ -515,14 +515,14 @@ const ApplicantDashboard = () => {
         });
         const profileId = profileIdResponse.data;
 
-
-        if (profileId === 0) {
+        if (profileIdResponse.status === 200 && profileId === 0) {
           navigate('/applicant-basic-details-form/1');
         } else {
           setLoading(false);
         }
       } catch (error) {
         console.error('Error fetching profile ID:', error);
+        setLoading(false);
       }
     };
 
@@ -1604,7 +1604,7 @@ const ApplicantDashboard = () => {
             try {
               const jwtToken = localStorage.getItem('jwtToken');
               const res = await axios.get(
-                `http://localhost:8081/streak/${user.id}/getAttemptedDates`,
+                `${apiUrl}/streak/${user.id}/getAttemptedDates`,
                 { headers: { Authorization: `Bearer ${jwtToken}` } }
               );
               if (Array.isArray(res.data)) {
