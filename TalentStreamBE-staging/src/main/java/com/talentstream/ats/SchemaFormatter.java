@@ -10,10 +10,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.talentstream.dto.ApplicantFullDataDTO;
 import com.talentstream.dto.ResumeSchemaDTO;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Component
 public class SchemaFormatter {
-
+	private static final Logger logger = LoggerFactory.getLogger(SchemaFormatter.class);
+	private String safeGet(Map<String, Object> map, String key) {
+	    Object value = map.get(key);
+	    return value != null ? value.toString() : "";
+	}
 	public ResumeSchemaDTO format(ApplicantFullDataDTO dto) {
 
 		// ===== HEADER =====
@@ -110,22 +115,51 @@ public class SchemaFormatter {
 
 	// extract project lines
 	private List<String> extractProjectLines(String projectsJson) {
-		List<String> lines = new ArrayList<>();
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			List<Map<String, Object>> projectList = mapper.readValue(
-					projectsJson,
-					new TypeReference<List<Map<String, Object>>>() {
-					});
-			for (Map<String, Object> p : projectList) {
-				lines.add(p.get("title") + " | " + p.get("technologies"));
-				lines.add(String.valueOf(p.get("description")));
-			}
-		} catch (Exception ignore) {
-		}
-		return lines;
-	}
+	    List<String> lines = new ArrayList<>();
 
+	    if (projectsJson == null || projectsJson.isBlank()) {
+	        logger.warn("Projects JSON is null or empty");
+	        return lines;
+	    }
+
+	    try {
+	        ObjectMapper mapper = new ObjectMapper();
+
+	        List<Map<String, Object>> projectList = mapper.readValue(
+	                projectsJson,
+	                new TypeReference<List<Map<String, Object>>>() {});
+
+	        for (Map<String, Object> p : projectList) {
+
+	            String title = safeGet(p, "title");
+	            String tech = safeGet(p, "technologies");
+	            String desc = safeGet(p, "description");
+	            String role = safeGet(p, "role");
+	            String roleDesc = safeGet(p, "role_description"); // ✅ ADD THIS
+
+	            lines.add(esc(title) + " | " + esc(tech));
+
+	            if (!desc.isBlank()) {
+	                lines.add("• " + esc(desc));
+	            }
+
+	            if (!role.isBlank()) {
+	                lines.add("• Role: " + esc(role));
+	            }
+	         // Role Description (NEW)
+	            if (roleDesc != null && !roleDesc.isBlank()) {
+	                lines.add("Role Description: " + roleDesc);
+	            }
+
+	            lines.add("");
+	        }
+
+	    } catch (Exception e) {
+	        logger.error("Failed to parse projects JSON: {}", projectsJson, e);
+	    }
+
+	    return lines;
+	}
 	private String esc(String s) {
 		if (s == null)
 			return "";
