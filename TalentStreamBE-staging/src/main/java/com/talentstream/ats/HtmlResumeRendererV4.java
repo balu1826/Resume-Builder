@@ -65,9 +65,17 @@ public class HtmlResumeRendererV4 implements ResumeHtmlRenderer {
         html.append(".project-name { font-weight: 700; font-size: 15px; color: #1e293b; }");
         html.append(".project-tech { font-size: 12px; color: #64748b; font-style: italic; text-align: right; }");
 
-        html.append(".project-desc ul { margin: 5px 0 0 18px; padding: 0; }");
-        html.append(".project-desc li { font-size: 13px; margin-bottom: 4px; color: #475569; line-height: 1.5; }");
+        html.append(".project-desc ul { margin: 6px 0 0 18px; padding: 0; }");
 
+        html.append(".project-desc li { font-size: 13.5px; line-height: 1.6; margin-bottom: 6px; color: #334155; }");
+
+        html.append(".desc-text { font-size: 13.5px; line-height: 1.6; color: #334155; margin-bottom: 6px; }");
+
+        html.append(".highlight-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-top: 6px; }");
+
+        html.append(".role-line { font-size: 13.5px; line-height: 1.6; margin-bottom: 6px; color: #334155; }");
+
+        html.append(".highlight-inline { font-weight: 600; color: #0f172a; }");
         html.append(".edu-item { margin-bottom: 15px; }");
         html.append(".edu-degree { font-weight: 600; font-size: 14px; color: #1e293b; }");
         html.append(".edu-school { font-size: 13px; color: #475569; }");
@@ -175,7 +183,7 @@ public class HtmlResumeRendererV4 implements ResumeHtmlRenderer {
 
                 if (line.contains("|")) {
                     if (projectOpen) {
-                        html.append("</ul></div></div>");
+                        html.append("</div></div>");
                     }
                     String[] parts = line.split("\\|", 2);
                     html.append("<div class=\"project-item\">");
@@ -190,14 +198,46 @@ public class HtmlResumeRendererV4 implements ResumeHtmlRenderer {
                     }
                     html.append("</tr></table>");
 
-                    html.append("<div class=\"project-desc\"><ul>");
+                    html.append("<div class=\"project-desc\">");
                     projectOpen = true;
                 } else if (projectOpen) {
-                    html.append("<li>").append(esc(line)).append("</li>");
+                	String cleanLine = line.replace("•", "").trim();
+                	String lower = cleanLine.toLowerCase();
+
+                	// ROLE DESCRIPTION FIRST
+                	if (lower.startsWith("role description")) {
+
+                	    String roleDesc = cleanLine.replaceFirst("(?i)role description:", "").trim();
+
+                	    html.append("<div class='highlight-title'>Role Description</div>");
+                	    html.append("<div class='desc-text'>")
+                	        .append(esc(roleDesc))
+                	        .append("</div>");
+                	}
+
+                	// ROLE
+                	else if (lower.startsWith("role:")) {
+
+                	    String roleVal = cleanLine.replaceFirst("(?i)role:", "").trim();
+
+                	    html.append("<div class='role-line'>")
+                	        .append("<span class='highlight-inline'>Role:</span> ")
+                	        .append(esc(roleVal))
+                	        .append("</div>");
+                	}
+
+                	// DESCRIPTION
+                	else {
+
+                	    html.append("<div class='highlight-title'>Description</div>");
+                	    html.append("<div class='desc-text'>")
+                	        .append(esc(cleanLine))
+                	        .append("</div>");
+                	}
                 }
             }
             if (projectOpen) {
-                html.append("</ul></div></div>");
+                html.append("</div></div>");
             }
             html.append("</div>");
         }
