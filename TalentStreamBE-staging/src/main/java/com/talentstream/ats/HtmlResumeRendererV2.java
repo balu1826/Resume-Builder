@@ -58,11 +58,13 @@ public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
     	html.append(".skills span{display:inline-block;background:#f1f5f9;padding:6px 10px;font-size:12px;border-radius:6px;margin:4px 4px 0 0;}");
     	html.append(".project{margin-bottom:16px;}");
     	html.append(".project-title{font-size:14px;font-weight:700;display:flex;justify-content:space-between;gap:8px;}");
-    	html.append(".project-tech{font-size:11px;color:#64748b;white-space:nowrap;}");
+    	html.append(".project-tech{font-size:14px;color:#64748b;white-space:nowrap;}");
     	html.append(".project ul{padding-left:0;margin-top:6px;}");
     	html.append(".project li{list-style:none;font-size:15px;display:flex;align-items:flex-start;margin-bottom:6px;}");
     	html.append(".dot{color:#2563eb;margin-right:8px;}");
     	html.append(".edu{border-left:1px solid #e5e7eb;padding-left:12px;margin-bottom:12px;}");
+    	html.append(".project-row{font-size:14px;line-height:1.55;color:#334155;margin-bottom:5px;}");
+    	html.append(".project-label{font-weight:700;color:#0f172a;}");
     	html.append("</style>");
 
     	html.append("</head>");
@@ -131,7 +133,7 @@ public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
 
     	            html.append("<div class='project'>");
     	            html.append("<div class='project-title'>");
-    	            html.append("<span>").append(esc(parts[0].trim())).append("</span>");
+    	            html.append("<span>").append(esc(parts[0].trim())+" | ").append("</span>");
 
     	            if (parts.length > 1) {
     	                html.append("<span class='project-tech'>")
@@ -144,8 +146,25 @@ public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
     	            projectOpen = true;
 
     	        } else if (projectOpen) {
-    	            html.append("<li><span class='dot'>•</span>")
-    	                .append(esc(line))
+    	            String cleanLine = line.replace("•", "").trim();
+    	            String lower = cleanLine.toLowerCase();
+    	            String label = "Description";
+    	            String value = cleanLine;
+
+    	            if (lower.startsWith("role description")) {
+    	                label = "Role Description";
+    	                value = cleanLine.replaceFirst("(?i)role description:", "").trim();
+    	            } else if (lower.startsWith("role:")) {
+    	                label = "Role";
+    	                value = cleanLine.replaceFirst("(?i)role:", "").trim();
+    	            } else if (lower.startsWith("description:")) {
+    	                value = cleanLine.replaceFirst("(?i)description:", "").trim();
+    	            }
+
+    	            html.append("<li class='project-row'><span class='project-label'>")
+    	                .append(esc(label))
+    	                .append(":</span> ")
+    	                .append(esc(value))
     	                .append("</li>");
     	        }
     	    }
