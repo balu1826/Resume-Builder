@@ -42,6 +42,8 @@ public class HtmlResumeRendererV3 implements ResumeHtmlRenderer {
 		html.append(".proj{margin:0 0 3.5mm 0;}");
 		html.append(".proj-title{font-weight:700;}");
 		html.append(".proj-tech{font-size:10pt;color:#374151;}");
+		html.append(".skills-table{width:100%;border-collapse:collapse;margin-top:1mm;}");
+		html.append(".skill-cell{width:25%;font-size:10.5pt;padding:1mm 2mm;vertical-align:top;}");
 		html.append("</style>");
 
 		html.append("</head><body>");
@@ -85,18 +87,25 @@ public class HtmlResumeRendererV3 implements ResumeHtmlRenderer {
 
 				    // ✅ Special handling for SKILLS
 				    if ("SKILLS".equalsIgnoreCase(title)) {
+				    	html.append("<table class='skills-table'><tr>");
 
-				        html.append("<div class='skills-grid'>");
+				    	int count = 0;
 
-				        for (String line : section.getLines()) {
-				            if (line == null || line.trim().isEmpty()) continue;
+				    	for (String line : section.getLines()) {
+				    	    if (line == null || line.trim().isEmpty()) continue;
 
-				            html.append("<div class='skill-item'>")
-				                .append(esc(line))
-				                .append("</div>");
-				        }
+				    	    if (count > 0 && count % 4 == 0) {
+				    	        html.append("</tr><tr>"); // new row after 4 skills
+				    	    }
 
-				        html.append("</div>");
+				    	    html.append("<td class='skill-cell'>")
+				    	        .append(esc(line))
+				    	        .append("</td>");
+
+				    	    count++;
+				    	}
+
+				    	html.append("</tr></table>");
 				    }
 
 				    // 🔹 Other sections remain same
