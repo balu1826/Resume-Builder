@@ -5,202 +5,421 @@ import com.talentstream.service.ResumeAIEnhancerService;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * HtmlResumeRendererV2 — "Emerald Executive" Template
+ *
+ * Design Identity:
+ *  - Full-width header banner with a 5px emerald-green accent bar on top
+ *  - Deep navy background in banner; Georgia serif for name, Arial for body
+ *  - Section titles: uppercase Georgia, 3px left emerald border + light teal background tint
+ *  - Skills: rounded deep-teal pill tags with pale mint text
+ *  - Projects: card-style blocks with 4px left teal border and faint teal wash
+ *  - Role shown as an inline emerald badge inside each project card
+ *  - Education: teal diamond (◆) bullet per entry
+ *  - Contact info: inline meta strip below name in banner
+ *
+ * Intentionally distinct from:
+ *  V1 — Blue bordered section cards, periwinkle pill skills, Segoe UI
+ *  V3 — Times New Roman, underlined headings, 4-column skill grid table
+ *  V4 — Dark sidebar two-column layout, skill tags in dark boxes
+ */
 @Component
 public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
-	private final  ResumeAIEnhancerService  resumeAIEnhancerService ;
-	
-    public HtmlResumeRendererV2(ResumeAIEnhancerService resumeAIEnhancerService) {
-		super();
-		this.resumeAIEnhancerService = resumeAIEnhancerService;
-	}
 
-	@Override
+    private final ResumeAIEnhancerService resumeAIEnhancerService;
+
+    public HtmlResumeRendererV2(ResumeAIEnhancerService resumeAIEnhancerService) {
+        super();
+        this.resumeAIEnhancerService = resumeAIEnhancerService;
+    }
+
+    @Override
     public String render(ResumeSchemaDTO resume,
                          String summary,
                          String role,
                          String jd) {
-    	StringBuilder html = new StringBuilder();
+    
 
-    	html.append("<!DOCTYPE html>");
-    	html.append("<html>");
-    	html.append("<head>");
-    	html.append("<meta charset='UTF-8'/>");
-    	html.append("<title>Resume</title>");
+    	  
+    	        StringBuilder html = new StringBuilder();
 
-    	/* ===== INLINE CSS (PDF SAFE) ===== */
-    	html.append("<style>");
-    	html.append(
-			    "@page { size: A4; margin: 0; }");
+    	        /* ===== DOCTYPE + HEAD ===== */
+    	        html.append("<!DOCTYPE html>");
+    	        html.append("<html><head>");
+    	        html.append("<meta charset='UTF-8'/>");
+    	        html.append("<title>Resume</title>");
 
-			html.append(
-			    ".wrapper{" +
-			    "width:210mm;" +
-			    "height:297mm;" +          // fixed full A4 height
-			    "margin:0 auto;" +
-			    "padding:15mm;" +          // slightly reduced padding to avoid overflow
-			    "box-sizing:border-box;" +
-			    "overflow:hidden;" +       // prevents accidental second page
-			    "}");
-    	html.append(".page{max-width:640px;margin:0 auto;padding:24px;background:#fff;}");
-    	html.append(
-				"body {" +
-				"font-family: Calibri, Arial, Helvetica, sans-serif;" +
-				"font-size:20px;" +
-				"color:#1f2937;" +
-				"margin:0;" +
-				"padding:0;" +
-				"}");
-    	html.append(".role{color:#2563eb;font-weight:600;font-size:14px;margin-bottom:8px;}");
-    	html.append(".meta{font-size:12px;color:#64748b;margin-bottom:4px;}");
-    	html.append("hr{border:none;border-top:1px solid #e5e7eb;margin:16px 0;}");
-    	html.append("h2{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin:16px 0 8px;}");
-    	html.append("p{font-size:17px;line-height:1.6;margin:4px 0;color:#334155;}");
-    	html.append(".skills span{display:inline-block;background:#f1f5f9;padding:6px 10px;font-size:12px;border-radius:6px;margin:4px 4px 0 0;}");
-    	html.append(".project{margin-bottom:16px;}");
-    	html.append(".project-title{font-size:14px;font-weight:700;display:flex;justify-content:space-between;gap:8px;}");
-    	html.append(".project-tech{font-size:14px;color:#64748b;white-space:nowrap;}");
-    	html.append(".project ul{padding-left:0;margin-top:6px;}");
-    	html.append(".project li{list-style:none;font-size:15px;display:flex;align-items:flex-start;margin-bottom:6px;}");
-    	html.append(".dot{color:#2563eb;margin-right:8px;}");
-    	html.append(".edu{border-left:1px solid #e5e7eb;padding-left:12px;margin-bottom:12px;}");
-    	html.append(".project-row{font-size:14px;line-height:1.55;color:#334155;margin-bottom:5px;}");
-    	html.append(".project-label{font-weight:700;color:#0f172a;}");
-    	html.append("</style>");
+    	        /* ===== EMERALD EXECUTIVE CSS ===== */
+    	        html.append("<style>");
 
-    	html.append("</head>");
-    	html.append("<body>");
-    	html.append("<div class='page'>");
+    	        // Page: A4, zero margin so banner bleeds edge-to-edge
+    	        html.append("@page { size: A4; margin: 0; }");
+    	        html.append("html, body { margin: 0; padding: 0; background: #fff; }");
 
-    	/* ===== HEADER ===== */
-    	String[] headerParts = resume.getHeader().split("\\|");
-    	html.append("<h1>").append(esc(headerParts[0])).append("</h1>");
+    	        // Body: Arial for readability, dark ink
+    	        html.append("body {" +
+    	                "font-family: Arial, Helvetica, sans-serif;" +
+    	                "font-size: 10.5pt;" +
+    	                "line-height: 1.55;" +
+    	                "color: #1a1a2e;" +
+    	                "}");
 
-    	if (headerParts.length > 1) {
-    	    html.append("<div class='role'>").append(esc(headerParts[1])).append("</div>");
-    	}
-    	for (int i = 2; i < headerParts.length; i++) {
-    	    html.append("<div class='meta'>").append(esc(headerParts[i])).append("</div>");
-    	}
+    	        // ── HEADER BANNER ─────────────────────────────────────────────────────────
+    	        html.append(".header-banner {" +
+    	                "background: #0d1b2a;" +
+    	                "border-top: 5px solid #059669;" +
+    	                "padding: 22px 32px 18px 32px;" +
+    	                "color: #fff;" +
+    	                "}");
 
-    	html.append("<hr/>");
+    	        html.append(".header-name {" +
+    	                "font-family: Georgia, 'Times New Roman', serif;" +
+    	                "font-size: 26pt;" +
+    	                "font-weight: 700;" +
+    	                "letter-spacing: 1.5px;" +
+    	                "margin: 0 0 4px 0;" +
+    	                "color: #ffffff;" +
+    	                "}");
 
-    	/* ===== PROFILE ===== */
-    	ResumeSchemaDTO.Section summarySection = getSection(resume, "SUMMARY");
-    	if (summarySection != null && !summarySection.getLines().isEmpty()) {
-    	    html.append("<h2>Profile</h2>");
-    	    html.append("<p>")
-    	        .append( resumeAIEnhancerService.enhanceSummary(esc(summarySection.getLines().get(0)), role, jd) )
-    	        .append("</p>");
-    	}
+    	        html.append(".header-role {" +
+    	                "font-size: 13pt;" +
+    	                "font-weight: 400;" +
+    	                "color: #6ee7b7;" +
+    	                "margin: 0 0 10px 0;" +
+    	                "letter-spacing: 0.5px;" +
+    	                "}");
 
-    	/* ===== SKILLS ===== */
-    	ResumeSchemaDTO.Section skills = getSection(resume, "SKILLS");
-    	if (skills != null && !skills.getLines().isEmpty()) {
-    	    html.append("<h2>Skills</h2>");
-    	    html.append("<div class='skills'>");
-    	    for (String s : skills.getLines()) {
-    	        html.append("<span>").append(esc(s)).append("</span>");
-    	    }
-    	    html.append("</div>");
-    	}
+    	        // Inline contact meta strip below name
+    	        html.append(".meta-strip {" +
+    	                "font-size: 9.5pt;" +
+    	                "color: #94a3b8;" +
+    	                "margin-top: 4px;" +
+    	                "}");
 
-    	/* ===== LANGUAGES ===== */
-    	ResumeSchemaDTO.Section langs = getSection(resume, "LANGUAGES", "KNOWN LANGUAGES");
-    	if (langs != null && !langs.getLines().isEmpty()) {
-    	    html.append("<h2>Languages</h2>");
-    	    html.append("<p>").append(esc(String.join(" • ", langs.getLines()))).append("</p>");
-    	}
+    	        html.append(".meta-sep {" +
+    	                "color: #059669;" +
+    	                "margin: 0 8px;" +
+    	                "}");
 
-    	/* ===== PROJECTS ===== */
-    	ResumeSchemaDTO.Section projects = getSection(resume, "PROJECTS");
-    	if (projects != null && projects.getLines() != null) {
+    	        // ── CONTENT AREA ──────────────────────────────────────────────────────────
+    	        html.append(".content {" +
+    	                "padding: 20px 32px 24px 32px;" +
+    	                "}");
 
-    	    html.append("<h2>Projects</h2>");
+    	        // ── SECTION HEADINGS ──────────────────────────────────────────────────────
+    	        html.append(".sec-heading {" +
+    	                "font-family: Georgia, 'Times New Roman', serif;" +
+    	                "font-size: 9.5pt;" +
+    	                "font-weight: 700;" +
+    	                "text-transform: uppercase;" +
+    	                "letter-spacing: 1.8px;" +
+    	                "color: #064e3b;" +
+    	                "border-left: 3px solid #059669;" +
+    	                "background: #ecfdf5;" +
+    	                "padding: 5px 10px;" +
+    	                "margin: 18px 0 10px 0;" +
+    	                "}");
 
-    	    boolean projectOpen = false;
+    	        // ── PROFILE ───────────────────────────────────────────────────────────────
+    	        html.append(".profile-text {" +
+    	                "font-size: 10.2pt;" +
+    	                "color: #374151;" +
+    	                "line-height: 1.65;" +
+    	                "margin: 0;" +
+    	                "}");
 
-    	    for (String line : projects.getLines()) {
+    	        // ── SKILLS ────────────────────────────────────────────────────────────────
+    	        html.append(".skills-wrap { margin-top: 6px; }");
 
-    	        if (line == null || line.trim().isEmpty()) continue;
+    	        html.append(".skill-pill {" +
+    	                "display: inline-block;" +
+    	                "background: #334155;" +        // dark box
+    	                "color: #e2e8f0;" +             // light text
+    	                "font-size: 9pt;" +
+    	                "padding: 6px 10px;" +
+    	                "border-radius: 6px;" +         // small radius (not pill)
+    	                "margin: 4px 6px 4px 0;" +
+    	                "border: 1px solid #475569;" +  // subtle border
+    	                "}" );
 
-    	        if (line.contains("|")) {
+    	        // ── LANGUAGES ─────────────────────────────────────────────────────────────
+    	        html.append(".lang-text {" +
+    	        	    "display: inline-block;" +
+    	        	    "background: #1e293b;" +          // slightly deeper dark (better contrast)
+    	        	    "color: #f1f5f9;" +               // brighter readable text
+    	        	    "font-size: 10pt;" +              // 🔥 increased for readability
+    	        	    "padding: 5px 12px;" +            // balanced padding
+    	        	    "border-radius: 4px;" +           // cleaner than 6px (resume look)
+    	        	    "margin: 6px 8px 6px 0;" +        // 🔥 better spacing between chips
+    	        	    "border: 1px solid #475569;" +
+    	        	    "line-height: 1.4;" +             // prevents cramped text
+    	        	    "white-space: nowrap;" +          // prevents breaking like 'Telugu'
+    	        	"}");
+    	        // ── PROJECT CARDS ─────────────────────────────────────────────────────────
+    	        html.append(".proj-card {" +
+    	                "border-left: 4px solid #059669;" +
+    	                "background: #f8fffe;" +
+    	                "padding: 10px 14px;" +
+    	                "margin-bottom: 12px;" +
+    	                "}");
 
-    	            if (projectOpen) {
-    	                html.append("</ul></div>");
+    	        html.append(".proj-name {" +
+    	                "font-family: Georgia, 'Times New Roman', serif;" +
+    	                "font-size: 11pt;" +
+    	                "font-weight: 700;" +
+    	                "color: #064e3b;" +
+    	                "}");
+
+    	        html.append(".proj-role-badge {" +
+    	        	    "display: inline-block;" +
+    	        	    "background: #059669;" +
+    	        	    "color: #fff;" +
+    	        	    "font-size: 8pt;" +
+    	        	    "font-weight: 600;" +
+    	        	    "padding: 2px 8px;" +
+    	        	    "border-radius: 4px;" +
+    	        	    "margin-top: 4px;" +  
+    	        	    "margin-left:4px;"+// ✅ ADD THIS
+    	        	"}");
+
+    	        html.append(".proj-tech {" +
+    	                "font-size: 9.5pt;" +
+    	                "color: #6b7280;" +
+    	                "font-style: italic;" +
+    	                "margin-top: 3px;" +
+    	                "}");
+
+    	        html.append(".proj-row {" +
+    	                "font-size: 10pt;" +
+    	                "color: #374151;" +
+    	                "margin-top: 5px;" +
+    	                "line-height: 1.55;" +
+    	                "}");
+
+    	        html.append(".proj-label {" +
+    	                "font-weight: 700;" +
+    	                "color: #065f46;" +
+    	                "}");
+
+    	        // ── EDUCATION ────────────────────────────────────────────────────
+    	        html.append(".edu-entry {" +
+    	                "display: table;" +
+    	                "width: 100%;" +
+    	                "margin-bottom: 8px;" +
+    	                "}");
+
+    	        html.append(".edu-bullet {" +
+    	        	    "display: table-cell;" +
+    	        	    "width: 12px;" +
+    	        	    "color: #059669;" +
+    	        	    "font-size: 12pt;" +     // slightly bigger for visibility
+    	        	    "vertical-align: top;" +
+    	        	    "padding-top: 1px;" +
+    	        	    "}");
+    	        html.append(".edu-text {" +
+    	                "display: table-cell;" +
+    	                "font-size: 10.2pt;" +
+    	                "color: #1a1a2e;" +
+    	                "line-height: 1.5;" +
+    	                "}");
+
+    	        html.append("</style>");
+    	        html.append("</head><body>");
+
+    	        /* ===== HEADER BANNER ===== */
+    	        String[] headerParts = (resume != null && resume.getHeader() != null)
+    	                ? resume.getHeader().split("\\|")
+    	                : new String[]{""};
+
+    	        String candidateName = headerParts.length > 0 ? esc(headerParts[0]) : "";
+    	        String candidateRole = headerParts.length > 1 ? esc(headerParts[1]) : "";
+
+    	        html.append("<div class='header-banner'>");
+    	        html.append("<div class='header-name'>").append(candidateName).append("</div>");
+    	        if (!candidateRole.isEmpty()) {
+    	            html.append("<div class='header-role'>").append(candidateRole).append("</div>");
+    	        }
+    	        if (headerParts.length > 2) {
+    	            html.append("<div class='meta-strip'>");
+    	            boolean firstMeta = true;
+    	            for (int i = 2; i < headerParts.length; i++) {
+    	                String meta = esc(headerParts[i]);
+    	                if (meta.isEmpty()) continue;
+    	                if (!firstMeta) html.append("<span class='meta-sep'>|</span>");
+    	                html.append(meta);
+    	                firstMeta = false;
     	            }
+    	            html.append("</div>");
+    	        }
+    	        html.append("</div>"); // end header-banner
 
-    	            String[] parts = line.split("\\|", 2);
+    	        html.append("<div class='content'>");
 
-    	            html.append("<div class='project'>");
-    	            html.append("<div class='project-title'>");
-    	            html.append("<span>").append(esc(parts[0].trim())+" | ").append("</span>");
+    	        /* ===== PROFILE / SUMMARY ===== */
+    	        ResumeSchemaDTO.Section summarySection = getSection(resume, "SUMMARY");
+    	        if (summarySection != null && !summarySection.getLines().isEmpty()) {
+    	            html.append("<div class='sec-heading'>Profile</div>");
+    	            String base = esc(summarySection.getLines().get(0));
+    	            String enhanced = resumeAIEnhancerService.enhanceSummary(base, role, jd);
+    	            html.append("<p class='profile-text'>").append(enhanced).append("</p>");
+    	        }
 
-    	            if (parts.length > 1) {
-    	                html.append("<span class='project-tech'>")
-    	                    .append(esc(parts[1].trim()))
-    	                    .append("</span>");
+    	        /* ===== SKILLS ===== */
+    	        ResumeSchemaDTO.Section skills = getSection(resume, "SKILLS");
+    	        if (skills != null && !skills.getLines().isEmpty()) {
+    	            html.append("<div class='sec-heading'>Skills</div>");
+    	            html.append("<div class='skills-wrap'>");
+    	            for (String s : skills.getLines()) {
+    	                if (s == null || s.trim().isEmpty()) continue;
+    	                html.append("<span class='skill-pill'>").append(esc(s)).append("</span>");
+    	            }
+    	            html.append("</div>");
+    	        }
+
+    	        /* ===== LANGUAGES ===== */
+    	   
+    	        ResumeSchemaDTO.Section langs = getSection(resume, "LANGUAGES", "KNOWN LANGUAGES");
+    	        if (langs != null && !langs.getLines().isEmpty()) {
+    	            html.append("<div class='sec-heading'>Languages</div>");
+    	            html.append("<div>");
+
+    	            boolean firstLang = true;
+    	            for (String l : langs.getLines()) {
+    	                if (l == null || l.trim().isEmpty()) continue;
+
+    	                if (!firstLang) html.append("&#160;&#160;"); // ✅ removed # / symbols
+    	                html.append("<span class='lang-text'>").append(esc(l)).append("</span>");
+
+    	                firstLang = false;
     	            }
 
     	            html.append("</div>");
-    	            html.append("<ul>");
-    	            projectOpen = true;
+    	        }
 
-    	        } else if (projectOpen) {
-    	            String cleanLine = line.replace("•", "").trim();
-    	            String lower = cleanLine.toLowerCase();
-    	            String label = "Description";
-    	            String value = cleanLine;
+    	        /* ===== PROJECTS ===== */
+    	        /* ===== PROJECTS ===== */
+    	        ResumeSchemaDTO.Section projects = getSection(resume, "PROJECTS");
+    	        if (projects != null && projects.getLines() != null) {
+    	            html.append("<div class='sec-heading'>Projects</div>");
 
-    	            if (lower.startsWith("role description")) {
-    	                label = "Role Description";
-    	                value = cleanLine.replaceFirst("(?i)role description:", "").trim();
-    	            } else if (lower.startsWith("role:")) {
-    	                label = "Role";
-    	                value = cleanLine.replaceFirst("(?i)role:", "").trim();
-    	            } else if (lower.startsWith("description:")) {
-    	                value = cleanLine.replaceFirst("(?i)description:", "").trim();
+    	            String projectName = "";
+    	            String projectTech = "";
+    	            String currentRole = "";
+    	            StringBuilder projectContent = new StringBuilder();
+
+    	            for (String line : projects.getLines()) {
+    	                if (line == null || line.trim().isEmpty()) continue;
+
+    	                if (line.contains("|")) {
+    	                    // ✅ Render previous project BEFORE starting new one
+    	                    if (!projectName.isEmpty()) {
+    	                        html.append("<div class='proj-card'>");
+
+    	                        html.append("<div class='proj-name'>")
+    	                            .append(esc(projectName));
+
+    	                        if (!currentRole.isEmpty()) {
+    	                            html.append("<span class='proj-role-badge'>Role: ")
+    	                                .append(esc(currentRole))
+    	                                .append("</span>");
+    	                        }
+
+    	                        html.append("</div>");
+
+    	                        if (!projectTech.isEmpty()) {
+    	                            html.append("<div class='proj-tech'>")
+    	                                .append(esc(projectTech))
+    	                                .append("</div>");
+    	                        }
+
+    	                        html.append(projectContent.toString());
+    	                        html.append("</div>");
+    	                    }
+
+    	                    // ✅ Reset for new project
+    	                    String[] parts = line.split("\\|", 2);
+    	                    projectName = parts[0].trim();
+    	                    projectTech = parts.length > 1 ? parts[1].trim() : "";
+    	                    currentRole = "";
+    	                    projectContent.setLength(0);
+
+    	                } else {
+    	                    String cleanLine = line.replace("\u2022", "").trim();
+    	                    String lower = cleanLine.toLowerCase();
+
+    	                    if (lower.startsWith("role:")) {
+    	                        currentRole = cleanLine.replaceFirst("(?i)role:", "").trim();
+
+    	                    } else if (lower.startsWith("role description")) {
+    	                        String val = cleanLine.replaceFirst("(?i)role description:", "").trim();
+    	                        projectContent.append("<div class='proj-row'><span class='proj-label'>Role Description:</span> ")
+    	                            .append(esc(val)).append("</div>");
+
+    	                    } else if (lower.startsWith("description:")) {
+    	                        String val = cleanLine.replaceFirst("(?i)description:", "").trim();
+    	                        projectContent.append("<div class='proj-row'><span class='proj-label'>Description:</span> ")
+    	                            .append(esc(val)).append("</div>");
+
+    	                    } else {
+    	                        projectContent.append("<div class='proj-row'><span class='proj-label'>Description:</span> ")
+    	                            .append(esc(cleanLine)).append("</div>");
+    	                    }
+    	                }
     	            }
 
-    	            html.append("<li class='project-row'><span class='project-label'>")
-    	                .append(esc(label))
-    	                .append(":</span> ")
-    	                .append(esc(value))
-    	                .append("</li>");
+    	            // ✅ Render LAST project
+    	            if (!projectName.isEmpty()) {
+    	                html.append("<div class='proj-card'>");
+
+    	                html.append("<div class='proj-name'>")
+    	                    .append(esc(projectName));
+
+    	                if (!currentRole.isEmpty()) {
+    	                    html.append("<span class='proj-role-badge'>Role: ")
+    	                        .append(esc(currentRole))
+    	                        .append("</span>");
+    	                }
+
+    	                html.append("</div>");
+
+    	                if (!projectTech.isEmpty()) {
+    	                    html.append("<div class='proj-tech'>")
+    	                        .append(esc(projectTech))
+    	                        .append("</div>");
+    	                }
+
+    	                html.append(projectContent.toString());
+    	                html.append("</div>");
+    	            }
     	        }
+
+    	        /* ===== EDUCATION ===== */
+    	        ResumeSchemaDTO.Section edu = getSection(resume, "EDUCATION");
+    	        if (edu != null && !edu.getLines().isEmpty()) {
+    	            html.append("<div class='sec-heading'>Education</div>");
+    	            for (String e : edu.getLines()) {
+    	                if (e == null || e.trim().isEmpty()) continue;
+    	                html.append("<div class='edu-entry'>")
+    	                .append("<div class='edu-bullet'>•</div>")
+    	                    .append("<div class='edu-text'>").append(esc(e)).append("</div>")
+    	                    .append("</div>");
+    	            }
+    	        }
+    	        html.append("</div>"); // end content
+    	        html.append("</body></html>");
+
+    	        return html.toString();
     	    }
-
-    	    if (projectOpen) {
-    	        html.append("</ul></div>");
-    	    }
-    	}
-
-    	/* ===== EDUCATION ===== */
-    	ResumeSchemaDTO.Section edu = getSection(resume, "EDUCATION");
-    	if (edu != null && !edu.getLines().isEmpty()) {
-    	    html.append("<h2>Education</h2>");
-    	    for (String e : edu.getLines()) {
-    	        html.append("<div class='edu'><p>")
-    	            .append(esc(e))
-    	            .append("</p></div>");
-    	    }
-    	}
-
-    	html.append("</div>");
-    	html.append("</body>");
-    	html.append("</html>");
-
-    	return html.toString();
-
-    }
+    
 
     // ===== helpers =====
 
-
-
     private ResumeSchemaDTO.Section getSection(ResumeSchemaDTO resume, String... titles) {
+        if (resume == null || resume.getSections() == null) return null;
         for (String t : titles) {
             for (ResumeSchemaDTO.Section s : resume.getSections()) {
-                if (s.getTitle().equalsIgnoreCase(t)) return s;
+                if (s != null && s.getTitle() != null && s.getTitle().equalsIgnoreCase(t))
+                    return s;
             }
         }
         return null;
@@ -210,10 +429,10 @@ public class HtmlResumeRendererV2 implements ResumeHtmlRenderer {
         if (s == null) return "";
         s = s.trim();
         if (s.startsWith("-")) s = s.substring(1).trim();
-        return s.replace("&","&amp;")
-                .replace("<","&lt;")
-                .replace(">","&gt;")
-                .replace("\"","&quot;")
-                .replace("'","&apos;");
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }
